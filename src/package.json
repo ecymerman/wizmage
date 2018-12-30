@@ -1,0 +1,8 @@
+{
+  "name": "wizmage",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@types/chrome": "^0.0.46"
+  }
+}
