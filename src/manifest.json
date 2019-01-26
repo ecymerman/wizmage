@@ -1,7 +1,7 @@
 {
   "name": "Wizmage Image Hider",
   "short_name": "Wizmage",
-  "version": "2.8.7",
+  "version": "2.8.11",
   "manifest_version": 2,
   "description": "Wizmage hides images in a way that minimizes the impact on the user's browsing experience.",
   "icons": {
@@ -45,7 +45,7 @@
     "pattern-light5.png",
     "pattern-light6.png",
     "pattern-light7.png",
-    "eye.png",
+    "eye.svg",
     "undo.png",
     "css.css"
   ]

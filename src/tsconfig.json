@@ -1,12 +1,8 @@
 ﻿{
   "compilerOptions": {
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "strictNullChecks": true,
+    "strict": true,
     "noEmitOnError": true,
-    "sourceMap": true,
-    "target": "es2015"
+    "target": "es2016"
   },
   "compileOnSave": true
 }

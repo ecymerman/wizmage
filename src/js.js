@@ -1,64 +1,10 @@
-interface Window {
-    wzmShowImages(): void;
-}
-interface Settings {
-    isPaused: boolean,
-    isNoPattern: boolean,
-    isNoEye: boolean,
-    isBlackList: boolean,
-    maxSafe: number,
-    isExcluded: boolean,
-    isExcludedForTab: boolean,
-    isPausedForTab: boolean,
-}
-interface HTMLElement {
-    wzmHasWizmageBG?: boolean,
-    wzmWizmaged: boolean,
-    wzmBeenBlocked?: boolean,
-    wzmLastCheckedSrc?: string,
-    wzmRect?: ClientRect,
-    wzmShade?: number,
-    wzmHidden?: boolean,
-    wzmHasMouseEventListeners?: boolean,
-    wzmHasLoadEventListener?: boolean,
-    wzmHasHover?: boolean,
-    wzmHasHoverVisual?: boolean,
-    wzmClearHoverVisualTimer?: number,
-    wzmCheckTimeout?: number
-}
-interface HTMLImageElement {
-    wzmHasTitleAndSizeSetup?: boolean,
-    owner?: HTMLElement,
-    oldsrc?: string,
-    oldsrcset?: string
-}
-interface String {
-    startsWith(str: string): boolean;
-}
-declare var mutationObserver: MutationObserver;
+"use strict";
 //global variables
-let showAll = false,
-    extensionUrl = chrome.extension.getURL(''),
-    urlExtensionUrl = 'url("' + extensionUrl,
-    blankImg = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
-    urlBlankImg = 'url("' + blankImg + '")',
-    patternCSSUrl = 'url(' + extensionUrl + "pattern.png" + ')',
-    patternLightUrl = extensionUrl + "pattern-light.png",
-    patternLightCSSUrl = 'url(' + patternLightUrl + ')',
-    eyeCSSUrl = 'url(' + extensionUrl + "eye.svg" + ')',
-    undoCSSUrl = 'url(' + extensionUrl + "undo.png" + ')',
-    tagList: string[] = ['IMG', 'DIV', 'SPAN', 'A', 'UL', 'LI', 'TD', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'I', 'STRONG', 'B', 'BIG', 'BUTTON', 'CENTER', 'SECTION', 'TABLE', 'FIGURE', 'ASIDE', 'HEADER', 'VIDEO', 'P', 'ARTICLE', 'PICTURE'],
-    tagListCSS = tagList.join(),
-    iframes: HTMLIFrameElement[] = [],
-    contentLoaded = false,
-    settings: Settings | undefined,
-    quotesRegex = /['"]/g;
-
+let showAll = false, extensionUrl = chrome.extension.getURL(''), urlExtensionUrl = 'url("' + extensionUrl, blankImg = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==', urlBlankImg = 'url("' + blankImg + '")', patternCSSUrl = 'url(' + extensionUrl + "pattern.png" + ')', patternLightUrl = extensionUrl + "pattern-light.png", patternLightCSSUrl = 'url(' + patternLightUrl + ')', eyeCSSUrl = 'url(' + extensionUrl + "eye.svg" + ')', undoCSSUrl = 'url(' + extensionUrl + "undo.png" + ')', tagList = ['IMG', 'DIV', 'SPAN', 'A', 'UL', 'LI', 'TD', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'I', 'STRONG', 'B', 'BIG', 'BUTTON', 'CENTER', 'SECTION', 'TABLE', 'FIGURE', 'ASIDE', 'HEADER', 'VIDEO', 'P', 'ARTICLE', 'PICTURE'], tagListCSS = tagList.join(), iframes = [], contentLoaded = false, settings, quotesRegex = /['"]/g;
 //keep track of contentLoaded
 window.addEventListener('DOMContentLoaded', function () { contentLoaded = true; });
-
 //start by seeing if is active or is paused etc.
-chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
+chrome.runtime.sendMessage({ r: 'getSettings' }, function (s) {
     settings = s;
     //if is active - go
     if (!settings.isExcluded && !settings.isExcludedForTab && !settings.isPaused && !settings.isPausedForTab) {
@@ -66,15 +12,16 @@ chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
         chrome.runtime.sendMessage({ r: 'setColorIcon', toggle: true });
         //do main window
         DoWin(window, contentLoaded);
-    } else {
+    }
+    else {
         if (!document.documentElement)
             return;
         AddClass(document.documentElement, 'wizmage-show-html');
-        let observer = new MutationObserver(function (mutations: MutationRecord[]) {
+        let observer = new MutationObserver(function (mutations) {
             for (let i = 0; i < mutations.length; i++) {
                 let m = mutations[i];
                 if (m.type == 'attributes') {
-                    let el = <HTMLElement>m.target;
+                    let el = m.target;
                     if (el.tagName == 'HTML' && m.attributeName == 'class') {
                         if (el.className.indexOf('wizmage-show-html') == -1)
                             AddClass(el, 'wizmage-show-html');
@@ -82,7 +29,7 @@ chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
                 }
                 else if (m.addedNodes != null && m.addedNodes.length > 0) {
                     for (let j = 0; j < m.addedNodes.length; j++) {
-                        let el = <HTMLElement>m.addedNodes[j];
+                        let el = m.addedNodes[j];
                         if (el.tagName == 'HTML')
                             AddClass(el, 'wizmage-show-html wizmage-running');
                     }
@@ -93,18 +40,15 @@ chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
         observer.observe(document, { subtree: true, childList: true });
     }
 });
-
 //catch 'Show Images' option from browser actions
-chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        if (request.r == 'showImages') ShowImages();
-    }
-);
-
-function isImg(el: HTMLElement): el is HTMLImageElement { return el.tagName == 'IMG'; }
-
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.r == 'showImages')
+        ShowImages();
+});
+function isImg(el) { return el.tagName == 'IMG'; }
 function ShowImages() {
-    if (showAll) return;
+    if (showAll)
+        return;
     showAll = true;
     if (window == top)
         chrome.runtime.sendMessage({ r: 'setColorIcon', toggle: false });
@@ -118,18 +62,9 @@ function ShowImages() {
         catch (err) { /*iframe may have been rewritten*/ }
     }
 }
-
-function DoWin(win: Window, winContentLoaded: boolean) {
-    let _settings = settings!, //DoWin is only called after settings is set
-        doc = win.document,
-        observer: MutationObserver | undefined,
-        eye = doc.createElement('div'),
-        mouseMoved = false,
-        mouseEvent: MouseEvent | undefined,
-        mouseOverEl: HTMLElement | undefined,
-        elList: HTMLElement[] = [],
-        hasStarted = false;
-
+function DoWin(win, winContentLoaded) {
+    let _settings = settings, //DoWin is only called after settings is set
+    doc = win.document, observer, eye = doc.createElement('div'), mouseMoved = false, mouseEvent, mouseOverEl, elList = [], hasStarted = false;
     //global show images
     win.wzmShowImages = function () {
         if (hasStarted) {
@@ -148,19 +83,17 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                     doc.body.removeChild(eye);
             if (observer)
                 observer.disconnect();
-            RemoveClass(document.documentElement!, 'wizmage-running');
+            RemoveClass(document.documentElement, 'wizmage-running');
         }
         else
-            AddClass(document.documentElement!, 'wizmage-show-html');
-    }
-
+            AddClass(document.documentElement, 'wizmage-show-html');
+    };
     //start, or register start
     if (winContentLoaded)
         Start();
     else
         win.addEventListener('DOMContentLoaded', Start);
-
-    function DocKeyDown(e: KeyboardEvent) {
+    function DocKeyDown(e) {
         if (e.altKey && e.keyCode == 80 && !_settings.isPaused) { //ALT-p
             _settings.isPaused = true;
             chrome.runtime.sendMessage({ r: 'pause', toggle: true });
@@ -170,13 +103,14 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             if (e.keyCode == 65 && mouseOverEl.wzmWizmaged) { //ALT-a
                 ShowEl.call(mouseOverEl);
                 eye.style.display = 'none';
-            } else if (e.keyCode == 90 && !mouseOverEl.wzmWizmaged) { //ALT-z
+            }
+            else if (e.keyCode == 90 && !mouseOverEl.wzmWizmaged) { //ALT-z
                 DoElement.call(mouseOverEl);
                 eye.style.display = 'none';
             }
         }
     }
-    function DocMouseMove(e: MouseEvent) { mouseEvent = e; mouseMoved = true; }
+    function DocMouseMove(e) { mouseEvent = e; mouseMoved = true; }
     let windowScrollIX = 0;
     function WindowScroll() {
         let _windowScrollIX = ++windowScrollIX;
@@ -186,16 +120,17 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             if (_windowScrollIX != windowScrollIX)
                 return;
             windowScrollIX = 0; //Signal no pending scroll callbacks. CheckMousePosition doesn't run during scroll to avoid showing eye in wrong place.
-            mouseMoved = true; UpdateElRects(); CheckMousePosition();
+            mouseMoved = true;
+            UpdateElRects();
+            CheckMousePosition();
         }, 200);
     }
-
     //keep track of which image-element mouse if over
-    function mouseEntered(this: HTMLElement, e: MouseEvent) {
+    function mouseEntered(e) {
         DoHover(this, true, e);
         e.stopPropagation();
     }
-    function mouseLeft(this: HTMLElement, e: MouseEvent) {
+    function mouseLeft(e) {
         DoHover(this, false, e);
     }
     //process all elements with background-image, and observe mutations for new ones
@@ -229,9 +164,9 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             }
         }
         //mutation observer
-        observer = new MutationObserver(function (mutations: MutationRecord[]) {
+        observer = new MutationObserver(function (mutations) {
             for (let i = 0; i < mutations.length; i++) {
-                let m = mutations[i], el = <HTMLElement>m.target;
+                let m = mutations[i], el = m.target;
                 if (m.type == 'attributes') {
                     if (m.attributeName == 'class') {
                         if (el.tagName == 'HTML') {
@@ -244,7 +179,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                         let oldHasLazy = m.oldValue != null && m.oldValue.indexOf('lazy') > -1, newHasLazy = el.className != null && el.className.indexOf('lazy') > -1;
                         if (oldHasLazy != newHasLazy)
                             DoElements(el, true);
-                    } else if (m.attributeName == 'style' && el.style.backgroundImage && el.style.backgroundImage.indexOf('url(') > - 1) {
+                    }
+                    else if (m.attributeName == 'style' && el.style.backgroundImage && el.style.backgroundImage.indexOf('url(') > -1) {
                         let oldBgImg, oldBgImgMatch;
                         if (m.oldValue == null || !(oldBgImgMatch = /background(?:-image)?:[^;]*url\(['"]?(.+?)['"]?\)/.exec(m.oldValue)))
                             oldBgImg = '';
@@ -255,16 +191,16 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                             setTimeout(() => DoElement.call(el), 0); //for sites that change the class just after, like linkedin
                         }
                     }
-                    else if (m.attributeName == 'srcset' && el.tagName == 'SOURCE' && (<HTMLSourceElement>el).srcset)
+                    else if (m.attributeName == 'srcset' && el.tagName == 'SOURCE' && el.srcset)
                         DoElement.call(m.target.parentElement);
                 }
                 else if (m.addedNodes != null && m.addedNodes.length > 0) {
                     for (let j = 0; j < m.addedNodes.length; j++) {
-                        let el = <HTMLElement>m.addedNodes[j];
+                        let el = m.addedNodes[j];
                         if (!el.tagName) //eg text nodes
                             continue;
                         if (el.tagName == 'IFRAME')
-                            DoIframe(<HTMLIFrameElement>el);
+                            DoIframe(el);
                         else if (el.tagName == 'HTML')
                             AddClass(el, 'wizmage-show-html wizmage-running');
                         else
@@ -291,18 +227,21 @@ function DoWin(win: Window, winContentLoaded: boolean) {
         }
         hasStarted = true;
     }
-    function DoElements(el: Element, includeEl: boolean) {
+    function DoElements(el, includeEl) {
         if (includeEl && tagList.indexOf(el.tagName) > -1)
             DoElement.call(el);
         let all = el.querySelectorAll(tagListCSS);
         for (let i = 0, max = all.length; i < max; i++)
             DoElement.call(all[i]);
     }
-    function DoIframe(iframe: HTMLIFrameElement) {
-        if ((iframe.src && iframe.src != "about:blank" && iframe.src.substr(0, 11) != 'javascript:') || !iframe.contentWindow) return;
+    function DoIframe(iframe) {
+        if ((iframe.src && iframe.src != "about:blank" && iframe.src.substr(0, 11) != 'javascript:') || !iframe.contentWindow)
+            return;
         let _win = iframe.contentWindow;
         let pollNum = 0, pollID = setInterval(function () {
-            try { var _doc = _win.document } //may cause access error, if is from other domain
+            try {
+                var _doc = _win.document;
+            } //may cause access error, if is from other domain
             catch (err) {
                 clearInterval(pollID);
                 return;
@@ -322,14 +261,13 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 clearInterval(pollID);
         }, 10);
     }
-
-    function DoElement(this: HTMLElement) {
-        if (showAll) return;
+    function DoElement() {
+        if (showAll)
+            return;
         let el = this;
         if (isImg(el)) {
             //attach load event - needed 1) as we need to catch it after it is switched for the blankImg, 2) in case the img gets changed to something else later
             DoLoadEventListener(el, true);
-
             //see if not yet loaded
             if (!el.complete) {
                 //hide, to avoid flash until load event is handled
@@ -337,11 +275,11 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 DoHidden(el, true);
                 return;
             }
-
             let elWidth = el.width, elHeight = el.height;
             if (el.src == blankImg && !el.srcset) { //was successfully replaced
                 DoHidden(el, false);
-            } else if ((elWidth == 0 || elWidth > _settings.maxSafe) && (elHeight == 0 || elHeight > _settings.maxSafe)) { //needs to be hidden - we need to catch 0 too, as sometimes images start off as zero
+            }
+            else if ((elWidth == 0 || elWidth > _settings.maxSafe) && (elHeight == 0 || elHeight > _settings.maxSafe)) { //needs to be hidden - we need to catch 0 too, as sometimes images start off as zero
                 DoMouseEventListeners(el, true);
                 if (!el.wzmHasTitleAndSizeSetup) {
                     el.style.width = elWidth + 'px';
@@ -359,7 +297,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 DoImgSrc(el, true);
                 DoWizmageBG(el, true);
                 el.src = blankImg;
-            } else { //small image
+            }
+            else { //small image
                 MarkWizmaged(el, false); //maybe !el.complete initially
                 DoHidden(el, false);
             }
@@ -367,21 +306,22 @@ function DoWin(win: Window, winContentLoaded: boolean) {
         else if (el.tagName == 'VIDEO') {
             DoHidden(el, true);
             MarkWizmaged(el, true);
-        } else if (el.tagName == 'PICTURE') {
+        }
+        else if (el.tagName == 'PICTURE') {
             for (let i = 0; i < el.children.length; i++) {
-                let child = <HTMLElement>el.children[i];
+                let child = el.children[i];
                 if (child.tagName == 'SOURCE')
-                    DoImgSrc(<HTMLImageElement>child, true);
+                    DoImgSrc(child, true);
             }
             MarkWizmaged(el, true);
-        } else {
-            let compStyle = getComputedStyle(el), bgimg = compStyle.backgroundImage, width = parseInt(compStyle.width!) || el.clientWidth, height = parseInt(compStyle.height!) || el.clientHeight; //as per https://developer.mozilla.org/en/docs/Web/API/window.getComputedStyle, getComputedStyle will return the 'used values' for width and height, which is always in px. We also use clientXXX, since sometimes compStyle returns NaN.
+        }
+        else {
+            let compStyle = getComputedStyle(el), bgimg = compStyle.backgroundImage, width = parseInt(compStyle.width) || el.clientWidth, height = parseInt(compStyle.height) || el.clientHeight; //as per https://developer.mozilla.org/en/docs/Web/API/window.getComputedStyle, getComputedStyle will return the 'used values' for width and height, which is always in px. We also use clientXXX, since sometimes compStyle returns NaN.
             if (bgimg && bgimg != 'none'
                 && !el.wzmWizmaged
                 && (width == 0 || width > _settings.maxSafe) && (height == 0 || height > _settings.maxSafe) /*we need to catch 0 too, as sometimes elements start off as zero*/
                 && bgimg.indexOf('url(') != -1
-                && !bgimg.startsWith(urlExtensionUrl)
-            ) {
+                && !bgimg.startsWith(urlExtensionUrl)) {
                 DoWizmageBG(el, true);
                 DoMouseEventListeners(el, true);
                 if (el.wzmLastCheckedSrc != bgimg) {
@@ -396,13 +336,14 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             }
         }
     }
-    function CheckBgImg(this: GlobalEventHandlers) {
-        let el = <HTMLImageElement>this;
-        if (el.height <= _settings.maxSafe || el.width <= _settings.maxSafe) ShowEl.call(el.owner);
+    function CheckBgImg() {
+        let el = this;
+        if (el.height <= _settings.maxSafe || el.width <= _settings.maxSafe)
+            ShowEl.call(el.owner);
         this.onload = null;
-    };
-
-    function MarkWizmaged(el: HTMLElement, toggle: boolean) {
+    }
+    ;
+    function MarkWizmaged(el, toggle) {
         if (toggle) {
             el.wzmWizmaged = true;
             el.wzmBeenBlocked = true;
@@ -414,8 +355,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
         else
             el.wzmWizmaged = false;
     }
-
-    function DoWizmageBG(el: HTMLElement, toggle: boolean) {
+    function DoWizmageBG(el, toggle) {
         if (toggle && !el.wzmHasWizmageBG) {
             let shade = Math.floor(Math.random() * 8);
             if (_settings.isNoPattern)
@@ -426,7 +366,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             }
             el.wzmHasWizmageBG = true;
             MarkWizmaged(el, true);
-        } else if (!toggle && el.wzmHasWizmageBG) {
+        }
+        else if (!toggle && el.wzmHasWizmageBG) {
             if (_settings.isNoPattern)
                 RemoveClass(el, 'wizmage-no-bg');
             else {
@@ -438,7 +379,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
         }
     }
     //for IMG,SOURCE
-    function DoImgSrc(el: HTMLImageElement, toggle: boolean) {
+    function DoImgSrc(el, toggle) {
         if (toggle) {
             if (el.tagName != 'SOURCE') {
                 el.oldsrc = el.src;
@@ -454,37 +395,39 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 el.srcset = el.oldsrcset || '';
         }
     }
-    function DoHidden(el: HTMLElement, toggle: boolean) {
+    function DoHidden(el, toggle) {
         if (toggle && !el.wzmHidden) {
             AddClass(el, 'wizmage-hide');
             el.wzmHidden = true;
-        } else if (!toggle && el.wzmHidden) {
+        }
+        else if (!toggle && el.wzmHidden) {
             RemoveClass(el, 'wizmage-hide');
             el.wzmHidden = false;
         }
     }
-    function DoMouseEventListeners(el: HTMLElement, toggle: boolean) {
+    function DoMouseEventListeners(el, toggle) {
         if (toggle && !el.wzmHasMouseEventListeners) {
             el.addEventListener('mouseover', mouseEntered);
             el.addEventListener('mouseout', mouseLeft);
             el.wzmHasMouseEventListeners = true;
-        } else if (!toggle && el.wzmHasMouseEventListeners) {
+        }
+        else if (!toggle && el.wzmHasMouseEventListeners) {
             el.removeEventListener('mouseover', mouseEntered);
             el.removeEventListener('mouseout', mouseLeft);
             el.wzmHasMouseEventListeners = false;
         }
     }
-    function DoLoadEventListener(el: HTMLElement, toggle: boolean) {
+    function DoLoadEventListener(el, toggle) {
         if (toggle && !el.wzmHasLoadEventListener) {
             el.addEventListener('load', DoElement);
             el.wzmHasLoadEventListener = true;
-        } else if (!toggle && el.wzmHasLoadEventListener) {
+        }
+        else if (!toggle && el.wzmHasLoadEventListener) {
             el.removeEventListener('load', DoElement);
             el.wzmHasLoadEventListener = false;
         }
     }
-
-    function DoHover(el: HTMLElement, toggle: boolean, evt?: MouseEvent) {
+    function DoHover(el, toggle, evt) {
         let coords = el.wzmRect;
         if (toggle && !el.wzmHasHover) {
             if (mouseOverEl && mouseOverEl != el)
@@ -492,15 +435,15 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             mouseOverEl = el;
             DoHoverVisual(el, true, coords);
             el.wzmHasHover = true;
-        } else if (!toggle && el.wzmHasHover && (!evt || !coords || !IsMouseIn(evt, coords))) {
+        }
+        else if (!toggle && el.wzmHasHover && (!evt || !coords || !IsMouseIn(evt, coords))) {
             DoHoverVisual(el, false, coords);
             el.wzmHasHover = false;
             if (el == mouseOverEl)
                 mouseOverEl = undefined;
         }
     }
-
-    function DoHoverVisual(el: HTMLElement, toggle: boolean, coords?: ClientRect) {
+    function DoHoverVisual(el, toggle, coords) {
         if (toggle && !el.wzmHasHoverVisual && el.wzmWizmaged) {
             if (!_settings.isNoEye) {
                 //eye
@@ -520,15 +463,17 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                             DoElement.call(el);
                             setupEye();
                             DoHoverVisualClearTimer(el, true);
-                        }
-                    }
-                }
+                        };
+                    };
+                };
                 setupEye();
-            } else
+            }
+            else
                 AddClass(el, 'wizmage-light');
             DoHoverVisualClearTimer(el, true);
             el.wzmHasHoverVisual = true;
-        } else if (!toggle && el.wzmHasHoverVisual) {
+        }
+        else if (!toggle && el.wzmHasHoverVisual) {
             if (!_settings.isNoEye)
                 eye.style.display = 'none';
             else
@@ -537,7 +482,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             el.wzmHasHoverVisual = false;
         }
     }
-    function DoHoverVisualClearTimer(el: HTMLElement, toggle: boolean) {
+    function DoHoverVisualClearTimer(el, toggle) {
         if (toggle) {
             DoHoverVisualClearTimer(el, false);
             el.wzmClearHoverVisualTimer = setTimeout(function () { DoHoverVisual(el, false); }, 2500);
@@ -547,23 +492,24 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             el.wzmClearHoverVisualTimer = undefined;
         }
     }
-    function PositionEye(el: HTMLElement, coords?: ClientRect) {
+    function PositionEye(el, coords) {
         if (!coords)
             return;
         eye.style.top = (coords.top < 0 ? 0 : coords.top) + 'px';
-        let left = coords.right; if (left > doc.documentElement!.clientWidth) left = doc.documentElement!.clientWidth;
+        let left = coords.right;
+        if (left > doc.documentElement.clientWidth)
+            left = doc.documentElement.clientWidth;
         eye.style.left = (left - 16) + 'px';
     }
-
     function UpdateElRects() {
         for (let el of elList) {
             if (el.wzmBeenBlocked)
                 el.wzmRect = el.getBoundingClientRect();
         }
     }
-
     function CheckMousePosition() {
-        if (!mouseMoved || !mouseEvent || !contentLoaded || showAll || windowScrollIX > 0) return;
+        if (!mouseMoved || !mouseEvent || !contentLoaded || showAll || windowScrollIX > 0)
+            return;
         mouseMoved = false;
         //see if needs to defocus current
         if (mouseOverEl) {
@@ -606,11 +552,10 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             DoHover(foundEl, true);
         }
     }
-    function IsMouseIn(mouseEvt: MouseEvent, coords: ClientRect) {
+    function IsMouseIn(mouseEvt, coords) {
         return mouseEvt.x >= coords.left && mouseEvt.x < coords.right && mouseEvt.y >= coords.top && mouseEvt.y < coords.bottom;
     }
-
-    function ShowEl(this: HTMLElement) {
+    function ShowEl() {
         //mustn't trigger the observer here to call DoElement on this
         let el = this;
         DoHidden(el, false);
@@ -626,10 +571,11 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             for (let i = 0; i < el.children.length; i++) {
                 let node = el.children[i];
                 if (node.tagName == 'SOURCE')
-                    DoImgSrc(<HTMLImageElement>node, false);
+                    DoImgSrc(node, false);
             }
             MarkWizmaged(el, false);
-        } else {
+        }
+        else {
             DoWizmageBG(el, false);
         }
         if (el.wzmCheckTimeout) {
@@ -640,15 +586,13 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             DoMouseEventListeners(el, false);
         }
     }
-
 }
-
-function RemoveClass(el: Element, n: string) { //these assume long unique class names, so no need to check for word boundaries
+function RemoveClass(el, n) {
     let oldClass = el.className, newClass = el.className.replace(new RegExp('\\b' + n + '\\b'), '');
     if (oldClass != newClass) {
         el.className = newClass;
     }
 }
-function AddClass(el: Element, c: string) {
+function AddClass(el, c) {
     el.className += ' ' + c;
 }
