@@ -10,7 +10,17 @@ interface Settings {
     isExcluded: boolean,
     isExcludedForTab: boolean,
     isPausedForTab: boolean,
+    pauseDuration: PauseDuration
 }
+
+enum PauseDuration {
+    Halfhour = 0,
+    Hour,
+    TwoHours,
+    WindowClose,
+    Forever
+}
+
 interface HTMLElement {
     wzmHasWizmageBG?: boolean,
     wzmWizmaged: boolean,

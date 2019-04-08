@@ -42,6 +42,17 @@
             <label for="close-on-click">Menu - close on click</label>
             <span class="info-icon" title="Closes the popup menu, whenever an option is clicked.">?</span>
         </div>
+        <div>
+            <select id="pause_duration">
+                <option value="0">1/2 Hour</option>
+                <option value="1">1 Hour</option>
+                <option value="2">2 Hours</option>
+                <option value="3" selected>Until Window Closes</option>
+                <option value="4">Forever</option>
+            </select>
+            <label for="pause_duration">Pause duration</label>
+            <span class="info-icon" title="How long should the extension pause for when pause is clicked.">?</span>
+        </div>
         <h3>
             <input type="radio" id="white-list" name="list-type" />
             <label for="white-list">White List</label>

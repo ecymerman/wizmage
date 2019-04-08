@@ -1,11 +1,12 @@
 $(function () {
     var $addName = $('#addName').focus(), $noPattern = $('#noPattern'), $noEye = $('#noEye'), $list = $('#list'), $whiteList = $('#white-list'), $blackList = $('#black-list'),
-        $form = $('form'), isFreeText = false, $freeText = $('#free-text'), $maxSafe = $('#max-safe'), $closeOnClick = $('#close-on-click');
+        $form = $('form'), isFreeText = false, $freeText = $('#free-text'), $maxSafe = $('#max-safe'), $closeOnClick = $('#close-on-click'), $pauseDuration = $('#pause_duration');
     chrome.runtime.sendMessage({ r: 'getSettings' }, function (settings) {
         $noPattern[0].checked = settings.isNoPattern;
         $noEye[0].checked = settings.isNoEye;
         (settings.isBlackList ? $blackList : $whiteList)[0].checked = true;
         $maxSafe.val(settings.maxSafe);
+        $pauseDuration.val(settings.pauseDuration);
     });
     chrome.runtime.onMessage.addListener(function (request) {
         if (request.r == 'urlListModified')
@@ -28,6 +29,9 @@ $(function () {
     });
     $closeOnClick.change(function () {
         chrome.runtime.sendMessage({ r: 'setCloseOnClick', toggle: this.checked });
+    });
+    $pauseDuration.change(function () {
+        chrome.runtime.sendMessage({ r: 'setPauseDuration', value: pauseDuration.val() });
     });
     $(window).on('unload', function () { $maxSafe.blur(); });
     $form.submit(function () {

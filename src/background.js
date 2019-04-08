@@ -4,6 +4,7 @@ var ul = localStorage.urlList, urlList = ul ? JSON.parse(ul) : [],
     isNoEye = localStorage.isNoEye == 1,
     isBlackList = localStorage.isBlackList == 1,
     closeOnClick = localStorage.closeOnClick == 1,
+    pauseDuration = localStorage.pauseDuration,
     excludeForTabList = [],
     pauseForTabList = [],
     domainRegex = /^\w+:\/\/([\w\.:-]+)/,
@@ -25,7 +26,8 @@ chrome.runtime.onMessage.addListener(
                     isNoEye: isNoEye,
                     isBlackList: isBlackList,
                     maxSafe: maxSafe,
-                    closeOnClick: closeOnClick
+                    closeOnClick: closeOnClick,
+                    pauseDuration: pauseDuration
                 };
                 var tab = request.tab || sender.tab;
                 if (tab) {
@@ -127,6 +129,10 @@ chrome.runtime.onMessage.addListener(
             case 'setCloseOnClick':
                 closeOnClick = request.toggle;
                 localStorage.closeOnClick = closeOnClick ? 1 : 0;
+                break;
+            case 'setPauseDuration':
+                pauseDuration = Number(request.value);
+                localStorage.pauseDuration = pauseDuration;
                 break;
         }
     }
