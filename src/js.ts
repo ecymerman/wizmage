@@ -61,7 +61,7 @@ window.addEventListener('DOMContentLoaded', function () { contentLoaded = true; 
 chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
     settings = s;
     //if is active - go
-    if (!settings.isExcluded && !settings.isExcludedForTab && !settings.isPaused && !settings.isPausedForTab) {
+    if (settings && !settings.isExcluded && !settings.isExcludedForTab && !settings.isPaused && !settings.isPausedForTab) {
         //change icon
         chrome.runtime.sendMessage({ r: 'setColorIcon', toggle: true });
         //do main window
@@ -256,7 +256,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                         }
                     }
                     else if (m.attributeName == 'srcset' && el.tagName == 'SOURCE' && (<HTMLSourceElement>el).srcset)
-                        DoElement.call(m.target.parentElement);
+                        DoElement.call(m.target.parentElement!);
                 }
                 else if (m.addedNodes != null && m.addedNodes.length > 0) {
                     for (let j = 0; j < m.addedNodes.length; j++) {
@@ -291,12 +291,12 @@ function DoWin(win: Window, winContentLoaded: boolean) {
         }
         hasStarted = true;
     }
-    function DoElements(el: Element, includeEl: boolean) {
+    function DoElements(el: HTMLElement, includeEl: boolean) {
         if (includeEl && tagList.indexOf(el.tagName) > -1)
             DoElement.call(el);
         let all = el.querySelectorAll(tagListCSS);
         for (let i = 0, max = all.length; i < max; i++)
-            DoElement.call(all[i]);
+            DoElement.call(<HTMLElement>all[i]);
     }
     function DoIframe(iframe: HTMLIFrameElement) {
         if ((iframe.src && iframe.src != "about:blank" && iframe.src.substr(0, 11) != 'javascript:') || !iframe.contentWindow) return;
@@ -398,7 +398,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
     }
     function CheckBgImg(this: GlobalEventHandlers) {
         let el = <HTMLImageElement>this;
-        if (el.height <= _settings.maxSafe || el.width <= _settings.maxSafe) ShowEl.call(el.owner);
+        if ((el.height <= _settings.maxSafe || el.width <= _settings.maxSafe) && el.owner) ShowEl.call(el.owner);
         this.onload = null;
     };
 
