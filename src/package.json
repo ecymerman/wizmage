@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "@types/chrome": "^0.0.46",
-    "node-sass": "4.11.0"
+    "node-sass": "4.13.1"
   }
 }
