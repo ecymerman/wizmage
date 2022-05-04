@@ -255,7 +255,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                             setTimeout(() => DoElement.call(el), 0); //for sites that change the class just after, like linkedin
                         }
                     }
-                    else if (m.attributeName == 'srcset' && el.tagName == 'SOURCE' && (<HTMLSourceElement>el).srcset)
+                    else if (m.attributeName == 'srcset' && el.tagName == 'SOURCE' && (<HTMLSourceElement>el).srcset && m.target.parentElement)
                         DoElement.call(m.target.parentElement!);
                 }
                 else if (m.addedNodes != null && m.addedNodes.length > 0) {
@@ -508,6 +508,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                     doc.body.appendChild(eye);
                 PositionEye(el, coords);
                 eye.style.display = 'block';
+                eye.style.backgroundColor = el.tagName == 'VIDEO' ? '#fff' : '';
                 let setupEye = function () {
                     eye.style.backgroundImage = eyeCSSUrl;
                     eye.onclick = function (e) {
