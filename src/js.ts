@@ -422,7 +422,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 AddClass(el, 'wizmage-no-bg');
             else {
                 el.wzmShade = shade;
-                AddClass(el, 'wizmage-pattern-bg-img wizmage-shade-' + shade);
+                AddClass(el, 'wizmage-pattern-bg-img wizmage-cls wizmage-shade-' + shade);
             }
             el.wzmHasWizmageBG = true;
             MarkWizmaged(el, true);
@@ -431,6 +431,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 RemoveClass(el, 'wizmage-no-bg');
             else {
                 RemoveClass(el, 'wizmage-pattern-bg-img');
+                RemoveClass(el, 'wizmage-cls');
                 RemoveClass(el, 'wizmage-shade-' + el.wzmShade);
             }
             el.wzmHasWizmageBG = false;
