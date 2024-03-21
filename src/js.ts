@@ -241,7 +241,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                             if (el.className.indexOf('wizmage-running') == -1)
                                 AddClass(el, 'wizmage-running');
                         }
-                        let oldHasLazy = m.oldValue != null && m.oldValue.indexOf('lazy') > -1, newHasLazy = el.className != null && el.className.indexOf('lazy') > -1;
+                        let oldHasLazy = m.oldValue != null && m.oldValue.indexOf('lazy') > -1,
+                            newHasLazy = el.className != null && typeof (el.className) == 'string' && el.className.indexOf('lazy') > -1;
                         if (oldHasLazy != newHasLazy)
                             DoElements(el, true);
                     } else if (m.attributeName == 'style' && el.style.backgroundImage && el.style.backgroundImage.indexOf('url(') > - 1) {
@@ -267,6 +268,10 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                             DoIframe(<HTMLIFrameElement>el);
                         else if (el.tagName == 'HTML')
                             AddClass(el, 'wizmage-show-html wizmage-running');
+                        else if (el.tagName == 'SOURCE') {
+                            if (!showAll)
+                                DoImgSrc(<HTMLImageElement>el, true);
+                        }
                         else
                             DoElements(el, true);
                     }

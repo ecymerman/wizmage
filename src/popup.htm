@@ -1,22 +1,7 @@
 <html>
 <head>
     <title>Wizmage</title>
-    <style>
-        body { font-family: Arial; font-size: 14px; }
-        label, #options { cursor: pointer; display: inline-block; }
-            label:hover, input:hover + label, #options:hover { color: #88e; }
-        .item { margin-bottom: 10px; }
-            .item.disabled label { color: grey; }
-        input, label { vertical-align: middle; }
-        #options { text-decoration: underline; }
-        #close { float: right; border: 1px solid; border-radius: 2px; font-weight: bold; font-size: 10px; color: black; cursor: pointer; padding: 0 2px; }
-            #close:hover { color: #555; }
-        a { cursor: pointer; text-decoration: underline; }
-        #still-seeing-images { font-size: 10px; }
-        #advice { display: none; padding-left: 20px; }
-            #advice > li { margin-bottom: 5px; }
-        #exclude-tab-wrap { display: none; }
-    </style>
+    <link href="popup.css" rel="stylesheet" />
 </head>
 <body>
     <div style='width: 150px; color: blue;'>
@@ -47,11 +32,11 @@
             <label for='pauseTab'>Pause<br />
                 for this Tab</label>
         </div>
+        <!--<a href="https://wizmage.com" id="wizmage-plus" target="_blank">WizmagePlus <img src="new.png" /></a>-->
         <div class="item">
             <div><a id="still-seeing-images">Still seeing images?</a></div>
             <ul id="advice">
-                <li><a id="block-flash">Block Flash</a></li>
-                <li><a id="report">Report the problem</a></li>
+                <li>Email: wizmageextension@gmail.com</li>
             </ul>
         </div>
     </div>
