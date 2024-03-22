@@ -1,65 +1,68 @@
 go();
 
 async function go() {
-    let localStorage = await chrome.storage.local.get(null);
-    if (!localStorage.urlList) {
-        chrome.offscreen.createDocument({
+    let { urlList, settings } = await chrome.storage.local.get(null);
+    if (!urlList || !settings) {
+        let offscreenPromise = new Promise(resolve => {
+            chrome.runtime.onMessage.addListener(function (request) {
+                if (request.r != 'migrateSettings')
+                    return;
+                let s = JSON.parse(request.storage);
+                urlList = s.urlList ? JSON.parse(s.urlList) : [];
+                settings = {
+                    paused: s.isPaused == '1',
+                    noPattern: s.isNoPattern == '1',
+                    noEye: s.isNoEye == '1',
+                    blackList: s.isBlackList == '1',
+                    closeOnClick: s.closeOnClick == '1',
+                    maxSafe: +s.maxSafe || 32
+                };
+                chrome.storage.local.set({ urlList, settings });
+                resolve();
+            });
+        });
+        await chrome.offscreen.createDocument({
             url: 'migrate-settings.htm',
             reasons: ['LOCAL_STORAGE'],
             justification: 'migrate settings from manifest v2',
         });
-        localStorage = await new Promise(resolve => {
-            chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-                if (request.r != 'migrate-settings')
-                    return;
-                chrome.storage.local.set(request.settings);
-                resolve(request.settings);
-            });
-        })
+        await offscreenPromise;
+        await chrome.offscreen.closeDocument();
     }
-    let urlList = localStorage.urlList || [],
-        isPaused = localStorage.isPaused,
-        isNoPattern = localStorage.isNoPattern,
-        isNoEye = localStorage.isNoEye,
-        isBlackList = localStorage.isBlackList,
-        closeOnClick = localStorage.closeOnClick,
-        maxSafe = localStorage.maxSafe || 32,
-        excludeForTabList = [],
+    let excludeForTabList = [],
         pauseForTabList = [],
         domainRegex = /^\w+:\/\/([\w\.:-]+)/;
     function getDomain(url) {
         let regex = domainRegex.exec(url);
         return regex ? regex[1].toLowerCase() : null;
     }
-    function saveUrlList() {
-        return chrome.storage.local.set({ urlList });
-    }
     chrome.runtime.onMessage.addListener(
         function (request, sender, sendResponse) {
             switch (request.r) {
-                case 'getSettings':
-                    let settings = { isPaused, isNoPattern, isNoEye, isBlackList, maxSafe, closeOnClick };
+                case 'getSettings': {
+                    let _settings = { ...settings };
                     let tab = request.tab || sender.tab;
                     if (tab) {
                         if (pauseForTabList.indexOf(tab.id) != -1)
-                            settings.isPausedForTab = true;
+                            _settings.pausedForTab = true;
                         if (tab.url) {
                             let domain = getDomain(tab.url);
                             if (domain) {
                                 for (let i = 0; i < excludeForTabList.length; i++) {
-                                    if (excludeForTabList[i].tabId == tab.id && excludeForTabList[i].domain == domain) { settings.isExcludedForTab = true; break; }
+                                    if (excludeForTabList[i].tabId == tab.id && excludeForTabList[i].domain == domain) { _settings.excludedForTab = true; break; }
                                 }
                             }
                             let lowerUrl = tab.url.toLowerCase();
                             for (let i = 0; i < urlList.length; i++) {
-                                if (lowerUrl.indexOf(urlList[i]) != -1) { settings.isExcluded = true; break; }
+                                if (lowerUrl.indexOf(urlList[i]) != -1) { _settings.excluded = true; break; }
                             }
-                            if (isBlackList)
-                                settings.isExcluded = !settings.isExcluded;
+                            if (settings.blackList)
+                                _settings.excluded = !_settings.excluded;
                         }
                     }
-                    sendResponse(settings);
+                    sendResponse(_settings);
                     break;
+                }
                 case 'setColorIcon':
                     chrome.action.setIcon({ path: request.toggle ? 'icon.png' : 'icon-d.png', tabId: sender.tab.id });
                     break;
@@ -67,7 +70,7 @@ async function go() {
                     let url = request.domainOnly ? getDomain(request.url) : request.url.toLowerCase();
                     if (url) {
                         urlList.push(url);
-                        saveUrlList();
+                        chrome.storage.local.set({ urlList });
                         chrome.runtime.sendMessage({ r: 'urlListModified' });
                     }
                     sendResponse(true);
@@ -80,7 +83,7 @@ async function go() {
                         }
                     } else
                         urlList.splice(request.index, 1);
-                    saveUrlList();
+                    chrome.storage.local.set({ urlList });
                     chrome.runtime.sendMessage({ r: 'urlListModified' });
                     break;
                 case 'getUrlList':
@@ -88,7 +91,7 @@ async function go() {
                     break;
                 case 'setUrlList':
                     urlList = request.urlList;
-                    saveUrlList();
+                    chrome.storage.local.set({ urlList });
                     sendResponse(true);
                     break;
                 case 'excludeForTab':
@@ -103,8 +106,8 @@ async function go() {
                     }
                     break;
                 case 'pause':
-                    isPaused = request.toggle;
-                    chrome.storage.local.set({ isPaused });
+                    settings.paused = request.toggle;
+                    chrome.storage.local.set({ settings });
                     break;
                 case 'pauseForTab':
                     if (request.toggle)
@@ -114,26 +117,28 @@ async function go() {
                             if (pauseForTabList[i] == request.tabId) { pauseForTabList.splice(i, 1); break; }
                     break;
                 case 'setNoPattern':
-                    isNoPattern = request.toggle;
-                    chrome.storage.local.set({ isNoPattern });
+                    settings.noPattern = request.toggle;
+                    chrome.storage.local.set({ settings });
                     break;
                 case 'setNoEye':
-                    isNoEye = request.toggle;
-                    chrome.storage.local.set({ isNoEye });
+                    settings.noEye = request.toggle;
+                    chrome.storage.local.set({ settings });
                     break;
                 case 'setBlackList':
-                    isBlackList = request.toggle;
-                    chrome.storage.local.set({ isBlackList });
+                    settings.blackList = request.toggle;
+                    chrome.storage.local.set({ settings });
                     break;
-                case 'setMaxSafe':
-                    maxSafe = +request.maxSafe;
-                    if (!maxSafe || maxSafe < 1 || maxSafe > 1000)
-                        maxSafe = 32;
-                    chrome.storage.local.set({ maxSafe });
+                case 'setMaxSafe': {
+                    let ms = +request.maxSafe;
+                    if (!ms || ms < 1 || ms > 1000)
+                        ms = 32;
+                    settings.maxSafe = ms;
+                    chrome.storage.local.set({ settings });
                     break;
+                }
                 case 'setCloseOnClick':
-                    closeOnClick = request.toggle;
-                    chrome.storage.local.set({ closeOnClick });
+                    settings.closeOnClick = request.toggle;
+                    chrome.storage.local.set({ settings });
                     break;
             }
         }

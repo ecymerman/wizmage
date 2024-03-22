@@ -4,12 +4,12 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.tabs.sendMessage(activeTab.id, { r: 'showImages' });
     }
     chrome.runtime.sendMessage({ r: 'getSettings', tab: activeTab }, function (settings) {
-        document.getElementById('pauseChk').checked = settings.isPaused;
-        document.getElementById('pauseTab').checked = settings.isPausedForTab;
-        document.getElementById('excludeDomain').checked = settings.isBlackList ? !settings.isExcluded : settings.isExcluded;
-        document.getElementById('excludeForTab').checked = settings.isExcludedForTab;
-        document.getElementById('exclude-domain-label').innerText = (settings.isBlackList ? 'Add' : 'Exclude') + ' Website';
-        document.getElementById('exclude-tab-wrap').style.display = settings.isBlackList ? 'none' : 'block';
+        document.getElementById('pauseChk').checked = settings.paused;
+        document.getElementById('pauseTab').checked = settings.pausedForTab;
+        document.getElementById('excludeDomain').checked = settings.blackList ? !settings.excluded : settings.excluded;
+        document.getElementById('excludeForTab').checked = settings.excludedForTab;
+        document.getElementById('exclude-domain-label').innerText = (settings.blackList ? 'Add' : 'Exclude') + ' Website';
+        document.getElementById('exclude-tab-wrap').style.display = settings.blackList ? 'none' : 'block';
         closeOnClick = settings.closeOnClick;
     });
     document.getElementById('showImages').onclick = function () {

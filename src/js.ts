@@ -2,14 +2,14 @@ interface Window {
     wzmShowImages(): void;
 }
 interface Settings {
-    isPaused: boolean,
-    isNoPattern: boolean,
-    isNoEye: boolean,
-    isBlackList: boolean,
+    paused: boolean,
+    noPattern: boolean,
+    noEye: boolean,
+    blackList: boolean,
     maxSafe: number,
-    isExcluded: boolean,
-    isExcludedForTab: boolean,
-    isPausedForTab: boolean,
+    excluded: boolean,
+    excludedForTab: boolean,
+    pausedForTab: boolean,
 }
 interface HTMLElement {
     wzmHasWizmageBG?: boolean,
@@ -61,7 +61,7 @@ window.addEventListener('DOMContentLoaded', function () { contentLoaded = true; 
 chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
     settings = s;
     //if is active - go
-    if (settings && !settings.isExcluded && !settings.isExcludedForTab && !settings.isPaused && !settings.isPausedForTab) {
+    if (settings && !settings.excluded && !settings.excludedForTab && !settings.paused && !settings.pausedForTab) {
         //change icon
         chrome.runtime.sendMessage({ r: 'setColorIcon', toggle: true });
         //do main window
@@ -161,8 +161,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
         win.addEventListener('DOMContentLoaded', Start);
 
     function DocKeyDown(e: KeyboardEvent) {
-        if (e.altKey && e.keyCode == 80 && !_settings.isPaused) { //ALT-p
-            _settings.isPaused = true;
+        if (e.altKey && e.keyCode == 80 && !_settings.paused) { //ALT-p
+            _settings.paused = true;
             chrome.runtime.sendMessage({ r: 'pause', toggle: true });
             ShowImages();
         }
@@ -220,7 +220,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
         eye.style.opacity = '.5';
         doc.body.appendChild(eye);
         //create temporary div, to eager load background img light for noEye to avoid flicker
-        if (_settings.isNoEye) {
+        if (_settings.noEye) {
             for (let i = 0; i < 8; i++) {
                 let div = doc.createElement('div');
                 div.style.opacity = div.style.width = div.style.height = '0';
@@ -423,7 +423,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
     function DoWizmageBG(el: HTMLElement, toggle: boolean) {
         if (toggle && !el.wzmHasWizmageBG) {
             let shade = Math.floor(Math.random() * 8);
-            if (_settings.isNoPattern)
+            if (_settings.noPattern)
                 AddClass(el, 'wizmage-no-bg');
             else {
                 el.wzmShade = shade;
@@ -432,7 +432,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             el.wzmHasWizmageBG = true;
             MarkWizmaged(el, true);
         } else if (!toggle && el.wzmHasWizmageBG) {
-            if (_settings.isNoPattern)
+            if (_settings.noPattern)
                 RemoveClass(el, 'wizmage-no-bg');
             else {
                 RemoveClass(el, 'wizmage-pattern-bg-img');
@@ -508,7 +508,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
 
     function DoHoverVisual(el: HTMLElement, toggle: boolean, coords?: ClientRect) {
         if (toggle && !el.wzmHasHoverVisual && el.wzmWizmaged) {
-            if (!_settings.isNoEye) {
+            if (!_settings.noEye) {
                 //eye
                 if (!eye.parentElement) //page js may have removed it
                     doc.body.appendChild(eye);
@@ -536,7 +536,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             DoHoverVisualClearTimer(el, true);
             el.wzmHasHoverVisual = true;
         } else if (!toggle && el.wzmHasHoverVisual) {
-            if (!_settings.isNoEye)
+            if (!_settings.noEye)
                 eye.style.display = 'none';
             else
                 RemoveClass(el, 'wizmage-light');

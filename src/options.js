@@ -1,75 +1,93 @@
-$(function () {
-    var $addName = $('#addName').focus(), $noPattern = $('#noPattern'), $noEye = $('#noEye'), $list = $('#list'), $whiteList = $('#white-list'), $blackList = $('#black-list'),
-        $form = $('form'), isFreeText = false, $freeText = $('#free-text'), $maxSafe = $('#max-safe'), $closeOnClick = $('#close-on-click');
+{
+    let addName = document.getElementById('addName'),
+        noPattern = document.getElementById('noPattern'),
+        noEye = document.getElementById('noEye'),
+        list = document.getElementById('list'),
+        whiteList = document.getElementById('white-list'),
+        blackList = document.getElementById('black-list'),
+        form = document.getElementById('form'),
+        freeText = document.getElementById('free-text'),
+        maxSafe = document.getElementById('max-safe'),
+        closeOnClick = document.getElementById('close-on-click'),
+        isFreeText = false;
+    addName.focus();
     chrome.runtime.sendMessage({ r: 'getSettings' }, function (settings) {
-        $noPattern[0].checked = settings.isNoPattern;
-        $noEye[0].checked = settings.isNoEye;
-        (settings.isBlackList ? $blackList : $whiteList)[0].checked = true;
-        $maxSafe.val(settings.maxSafe);
+        noPattern.checked = settings.noPattern;
+        noEye.checked = settings.noEye;
+        closeOnClick.checked = settings.closeOnClick;
+        (settings.blackList ? blackList : whiteList).checked = true;
+        maxSafe.value = settings.maxSafe;
     });
     chrome.runtime.onMessage.addListener(function (request) {
         if (request.r == 'urlListModified')
             CreateList();
     });
-    $noPattern.click(function () {
+    noPattern.onclick = function () {
         chrome.runtime.sendMessage({ r: 'setNoPattern', toggle: this.checked });
-    });
-    $noEye.click(function () {
+    };
+    noEye.onclick = function () {
         chrome.runtime.sendMessage({ r: 'setNoEye', toggle: this.checked });
-    });
-    $whiteList.click(function () {
+    };
+    whiteList.onclick = function () {
         chrome.runtime.sendMessage({ r: 'setBlackList', toggle: false });
-    });
-    $blackList.click(function () {
+    };
+    blackList.onclick = function () {
         chrome.runtime.sendMessage({ r: 'setBlackList', toggle: true });
-    });
-    $maxSafe.change(function () {
-        chrome.runtime.sendMessage({ r: 'setMaxSafe', maxSafe: $maxSafe.val() });
-    });
-    $closeOnClick.change(function () {
+    };
+    maxSafe.onchange = function () {
+        chrome.runtime.sendMessage({ r: 'setMaxSafe', maxSafe: maxSafe.value });
+    };
+    closeOnClick.onclick = function () {
         chrome.runtime.sendMessage({ r: 'setCloseOnClick', toggle: this.checked });
-    });
-    $(window).on('unload', function () { $maxSafe.blur(); });
-    $form.submit(function () {
-        var url = $.trim($addName.val()).toLowerCase();
+    };
+    window.onunload = () => maxSafe.blur();
+    form.onsubmit = function () {
+        let url = addName.value.trim().toLowerCase();
         if (!url.length) return;
         chrome.runtime.sendMessage({ r: 'urlListAdd', url: url }, CreateList);
-        $addName.val('');
+        addName.value = '';
         return false;
-    });
-    $list.on('click', '.delete', function () {
-        var $parent = $(this).parent();
-        chrome.runtime.sendMessage({ r: 'urlListRemove', index: $parent.index() }, CreateList);
-    });
+    };
+    list.onclick = ev => {
+        let del = ev.target.closest('.delete');
+        if (del) {
+            let item = ev.target.closest('.item');
+            chrome.runtime.sendMessage({ r: 'urlListRemove', index: item.ix }, CreateList);
+        }
+    };
     function CreateList() {
         chrome.runtime.sendMessage({ r: 'getUrlList' }, function (urlList) {
-            $list.empty();
+            list.innerHTML = '';
             if (isFreeText) {
-                var $textarea = $('<textarea>').css('width', '100%').attr('rows', '15'), text = '';
-                for (var i = 0; i < urlList.length; i++) {
-                    text += urlList[i] + '\n';
-                }
-                $textarea.val(text);
-                $list.append($textarea);
-                $textarea.change(function () {
-                    var text = $textarea.val(), lines = text.split('\n'), urls = [];
-                    for (var i = 0; i < lines.length; i++) {
-                        var url = lines[i].trim();
+                let textarea = document.createElement('textarea');
+                textarea.style.width = '100%';
+                textarea.rows = 15;
+                textarea.value = urlList.join('\n');
+                list.appendChild(textarea);
+                textarea.onchange = function () {
+                    let text = textarea.value, lines = text.split('\n'), urls = [];
+                    for (let i = 0; i < lines.length; i++) {
+                        let url = lines[i].trim();
                         if (url)
                             urls.push(url);
                     }
-                    chrome.runtime.sendMessage({ r: 'setUrlList', urlList: urls }, CreateList);                        
-                });
+                    chrome.runtime.sendMessage({ r: 'setUrlList', urlList: urls }, CreateList);
+                };
             }
             else {
-                for (var i = 0; i < urlList.length; i++)
-                    $list.append("<div class='item'><span class='delete'>X</span> <span class='url'>" + urlList[i] + '</span></div>');
+                for (let i = 0; i < urlList.length; i++) {
+                    let item = document.createElement('div');
+                    item.className = 'item';
+                    item.ix = i;
+                    item.innerHTML = `<span class='delete'>X</span> <span class='url'>${urlList[i]}</span>`;
+                    list.appendChild(item);
+                }
             }
         });
     }
-    $freeText.click(function () {
-        isFreeText = $freeText[0].checked;
+    freeText.onclick = function () {
+        isFreeText = freeText.checked;
         CreateList();
-    });
+    };
     CreateList();
-});
+}

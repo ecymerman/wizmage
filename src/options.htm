@@ -2,8 +2,6 @@
 <html>
 <head>
     <title>Wizmage Options</title>
-    <script src='jquery.min.js'></script>
-    <script src='options.js'></script>
     <style>
         body { background: #004; font-family: arial; }
         #cont { width: 525px; background: #B1F0B1; margin: auto; margin-top: 50px; padding: 20px; border-radius: 20px; }
@@ -49,7 +47,7 @@
             <label for="black-list">Black List</label>
             <span class="info-icon" title="With a White List, Wizmage runs on all sites, besides for those in the list below. With a Black List, Wizmage only runs on the sites in the list below.">?</span>
         </h3>
-        <form>
+        <form id="form">
             <input type='text' id='addName'>
             <input type='submit' value='Add Exception' id='addBut'>
         </form>
@@ -60,5 +58,6 @@
             <label for="free-text">Free Text</label>
         </div>
     </div>
+    <script src='options.js'></script>
 </body>
 </html>
