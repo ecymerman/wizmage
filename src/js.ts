@@ -38,7 +38,7 @@ interface String {
 declare var mutationObserver: MutationObserver;
 //global variables
 let showAll = false,
-    extensionUrl = chrome.extension.getURL(''),
+    extensionUrl = chrome.runtime.getURL(''),
     urlExtensionUrl = 'url("' + extensionUrl,
     blankImg = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
     urlBlankImg = 'url("' + blankImg + '")',

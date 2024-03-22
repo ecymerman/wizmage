@@ -46,12 +46,5 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         var advice = document.getElementById('advice');
         advice.style.display = advice.style.display == 'block' ? 'none' : 'block';
     };
-    document.getElementById('block-flash').onclick = function () {
-        alert("In order to avoid automatically showing Flash animations, in the 'Plug-ins' section of Chrome's settings (which you will see when you press OK), click either 'Click to play' (recommended), or 'Block all'.");
-        chrome.tabs.create({ url: "chrome://settings/content#handlers-section" });
-    };
-    document.getElementById('report').onclick = function () {
-        chrome.tabs.create({ url: "https://chrome.google.com/webstore/support/ifoggbfaoakkojipahnplnbfnhhhnmlp?hl=en&gl=IL#bug" });
-    };
 });
 document.getElementById('close').onclick = function () { close(); };
