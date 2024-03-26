@@ -3,33 +3,48 @@ chrome.runtime.onInstalled.addListener(
     async function () {
         let { urlList, settings } = await chrome.storage.local.get(['urlList', 'settings']);
         if (!urlList || !settings) {
-            let offscreenPromise = new Promise(resolve => {
-                let migrateSettingsListener = request => {
-                    if (request.r != 'migrateSettings')
-                        return;
-                    let s = JSON.parse(request.storage);
-                    urlList = s.urlList ? JSON.parse(s.urlList) : [];
-                    settings = {
-                        paused: s.isPaused == '1',
-                        noPattern: s.isNoPattern == '1',
-                        noEye: s.isNoEye == '1',
-                        blackList: s.isBlackList == '1',
-                        closeOnClick: s.closeOnClick == '1',
-                        maxSafe: +s.maxSafe || 32
+            if (chrome.offscreen && 'LOCAL_STORAGE' in chrome.offscreen.Reason) {
+                let offscreenPromise = new Promise(resolve => {
+                    let migrateSettingsListener = request => {
+                        if (request.r != 'migrateSettings')
+                            return;
+                        let s = JSON.parse(request.storage);
+                        urlList = s.urlList ? JSON.parse(s.urlList) : [];
+                        settings = {
+                            paused: s.isPaused == '1',
+                            noPattern: s.isNoPattern == '1',
+                            noEye: s.isNoEye == '1',
+                            blackList: s.isBlackList == '1',
+                            closeOnClick: s.closeOnClick == '1',
+                            maxSafe: +s.maxSafe || 32
+                        };
+                        chrome.storage.local.set({ urlList, settings });
+                        resolve();
+                        chrome.runtime.onMessage.removeListener(migrateSettingsListener);
                     };
-                    chrome.storage.local.set({ urlList, settings });
-                    resolve();
-                    chrome.runtime.onMessage.removeListener(migrateSettingsListener);
-                };
-                chrome.runtime.onMessage.addListener(migrateSettingsListener);
-            });
-            await chrome.offscreen.createDocument({
-                url: 'migrate-settings.htm',
-                reasons: ['LOCAL_STORAGE'],
-                justification: 'migrate settings from manifest v2',
-            });
-            await offscreenPromise;
-            await chrome.offscreen.closeDocument();
+                    chrome.runtime.onMessage.addListener(migrateSettingsListener);
+                });
+                await chrome.offscreen.createDocument({
+                    url: 'migrate-settings.htm',
+                    reasons: ['LOCAL_STORAGE'],
+                    justification: 'migrate settings from manifest v2',
+                });
+                await offscreenPromise;
+                await chrome.offscreen.closeDocument();
+            }
+            else {
+                chrome.storage.local.set({
+                    urlList: [],
+                    settings: {
+                        paused: false,
+                        noPattern: false,
+                        noEye: false,
+                        blackList: false,
+                        closeOnClick: false,
+                        maxSafe: 32
+                    }
+                });
+            }
         }
     }
 );
