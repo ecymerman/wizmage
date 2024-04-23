@@ -242,8 +242,9 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                                 AddClass(el, 'wizmage-running');
                         }
                         let oldHasLazy = m.oldValue != null && m.oldValue.indexOf('lazy') > -1,
-                            newHasLazy = el.className != null && typeof (el.className) == 'string' && el.className.indexOf('lazy') > -1;
-                        if (oldHasLazy != newHasLazy)
+                            newHasLazy = el.className != null && typeof (el.className) == 'string' && el.className.indexOf('lazy') > -1,
+                            addedBG = (!m.oldValue || m.oldValue.indexOf('_bg') == -1) && el.className.indexOf('_bg') > -1;
+                        if (oldHasLazy != newHasLazy || addedBG)
                             DoElements(el, true);
                     } else if (m.attributeName == 'style' && el.style.backgroundImage && el.style.backgroundImage.indexOf('url(') > - 1) {
                         let oldBgImg, oldBgImgMatch;
