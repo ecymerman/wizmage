@@ -1,6 +1,5 @@
 ﻿{
   "compilerOptions": {
-    "strict": true,
     "noEmitOnError": true,
     "target": "es2016"
   },

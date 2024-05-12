@@ -47,7 +47,7 @@ let showAll = false,
     patternLightCSSUrl = 'url(' + patternLightUrl + ')',
     eyeCSSUrl = 'url(' + extensionUrl + "eye.svg" + ')',
     undoCSSUrl = 'url(' + extensionUrl + "undo.png" + ')',
-    tagList: string[] = ['IMG', 'DIV', 'SPAN', 'A', 'UL', 'LI', 'TD', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'I', 'STRONG', 'B', 'BIG', 'BUTTON', 'CENTER', 'SECTION', 'TABLE', 'FIGURE', 'ASIDE', 'HEADER', 'VIDEO', 'P', 'ARTICLE', 'PICTURE'],
+    tagList: string[] = ['IMG', 'DIV', 'SPAN', 'A', 'UL', 'LI', 'TD', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'I', 'STRONG', 'B', 'BIG', 'BUTTON', 'CENTER', 'SECTION', 'TABLE', 'FIGURE', 'ASIDE', 'HEADER', 'VIDEO', 'P', 'ARTICLE', 'PICTURE', 'BA-IMAGE'],
     tagListCSS = tagList.join(),
     iframes: HTMLIFrameElement[] = [],
     contentLoaded = false,
@@ -122,7 +122,7 @@ function ShowImages() {
 function DoWin(win: Window, winContentLoaded: boolean) {
     let _settings = settings!, //DoWin is only called after settings is set
         doc = win.document,
-        observer: MutationObserver | undefined,
+        observers: MutationObserver[] = [],
         eye = doc.createElement('div'),
         mouseMoved = false,
         mouseEvent: MouseEvent | undefined,
@@ -146,8 +146,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             for (let i = 0, bodyChildren = doc.body.children; i < bodyChildren.length; i++) //for some reason, sometimes the eye is removed before
                 if (bodyChildren[i] == eye)
                     doc.body.removeChild(eye);
-            if (observer)
-                observer.disconnect();
+            for (let obs of observers)
+                obs.disconnect();
             RemoveClass(document.documentElement!, 'wizmage-running');
         }
         else
@@ -198,38 +198,20 @@ function DoWin(win: Window, winContentLoaded: boolean) {
     function mouseLeft(this: HTMLElement, e: MouseEvent) {
         DoHover(this, false, e);
     }
-    //process all elements with background-image, and observe mutations for new ones
-    function Start() {
-        //when viewing an image (not a webpage). iFrames, or pdfs may not have body/head
-        if (!doc.body || !doc.head || !doc.documentElement || (win == top && doc.body.children.length == 1 && !doc.body.children[0].children.length)) {
-            ShowImages();
-            return;
+    //body can be either body, or a shadow root
+    function setupBody(body) {
+        let isShadow = body != doc.body;
+        if (isShadow) {
+            let linkEl = doc.createElement('link');
+            linkEl.rel = 'stylesheet';
+            linkEl.href = extensionUrl + 'css.css';
+            body.prepend(linkEl);
+            body.wzmShadowSetup = true;
         }
         //do elements
-        DoElements(doc.body, false);
-        //show body
-        AddClass(doc.documentElement, 'wizmage-show-html wizmage-running');
-        //create eye
-        eye.style.display = 'none';
-        eye.style.width = eye.style.height = '16px';
-        eye.style.position = 'fixed';
-        eye.style.zIndex = '100000000';
-        eye.style.cursor = 'pointer';
-        eye.style.padding = '0';
-        eye.style.margin = '0';
-        eye.style.opacity = '.5';
-        doc.body.appendChild(eye);
-        //create temporary div, to eager load background img light for noEye to avoid flicker
-        if (_settings.noEye) {
-            for (let i = 0; i < 8; i++) {
-                let div = doc.createElement('div');
-                div.style.opacity = div.style.width = div.style.height = '0';
-                div.className = 'wizmage-pattern-bg-img wizmage-light wizmage-shade-' + i;
-                doc.body.appendChild(div);
-            }
-        }
+        DoElements(body, false);
         //mutation observer
-        observer = new MutationObserver(function (mutations: MutationRecord[]) {
+        let observer = new MutationObserver(function (mutations: MutationRecord[]) {
             for (let i = 0; i < mutations.length; i++) {
                 let m = mutations[i], el = <HTMLElement>m.target;
                 if (m.type == 'attributes') {
@@ -243,7 +225,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                         }
                         let oldHasLazy = m.oldValue != null && m.oldValue.indexOf('lazy') > -1,
                             newHasLazy = el.className != null && typeof (el.className) == 'string' && el.className.indexOf('lazy') > -1,
-                            addedBG = (!m.oldValue || m.oldValue.indexOf('_bg') == -1) && el.className.indexOf('_bg') > -1;
+                            addedBG = (!m.oldValue || m.oldValue.indexOf('_bg') == -1) && typeof (el.className) == 'string' && el.className.indexOf('_bg') > -1;
                         if (oldHasLazy != newHasLazy || addedBG)
                             DoElements(el, true);
                     } else if (m.attributeName == 'style' && el.style.backgroundImage && el.style.backgroundImage.indexOf('url(') > - 1) {
@@ -279,7 +261,39 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 }
             }
         });
-        observer.observe(doc, { subtree: true, childList: true, attributes: true, attributeOldValue: true });
+        observer.observe(isShadow ? body : doc, { subtree: true, childList: true, attributes: true, attributeOldValue: true });
+        observers.push(observer);
+    }
+    //process all elements with background-image, and observe mutations for new ones
+    function Start() {
+        //when viewing an image (not a webpage). iFrames, or pdfs may not have body/head
+        if (!doc.body || !doc.head || !doc.documentElement || (win == top && doc.body.children.length == 1 && !doc.body.children[0].children.length)) {
+            ShowImages();
+            return;
+        }
+        //show body
+        AddClass(doc.documentElement, 'wizmage-show-html wizmage-running');
+        //create eye
+        eye.style.display = 'none';
+        eye.style.width = eye.style.height = '16px';
+        eye.style.position = 'fixed';
+        eye.style.zIndex = '100000000';
+        eye.style.cursor = 'pointer';
+        eye.style.padding = '0';
+        eye.style.margin = '0';
+        eye.style.opacity = '.5';
+        doc.body.appendChild(eye);
+        //create temporary div, to eager load background img light for noEye to avoid flicker
+        if (_settings.noEye) {
+            for (let i = 0; i < 8; i++) {
+                let div = doc.createElement('div');
+                div.style.opacity = div.style.width = div.style.height = '0';
+                div.className = 'wizmage-pattern-bg-img wizmage-light wizmage-shade-' + i;
+                doc.body.appendChild(div);
+            }
+        }
+        //observer/loop elements
+        setupBody(doc.body);
         //CheckMousePosition every so often
         setInterval(CheckMousePosition, 250);
         setInterval(UpdateElRects, 3000);
@@ -399,6 +413,9 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                     if (urlMatch)
                         i.src = urlMatch[1];
                 }
+            }
+            if (el.shadowRoot && !(<any>el.shadowRoot).wzmShadowSetup) {
+                setupBody(el.shadowRoot);
             }
         }
     }
