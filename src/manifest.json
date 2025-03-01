@@ -1,7 +1,7 @@
 {
   "name": "Wizmage Image Hider",
   "short_name": "Wizmage",
-  "version": "3.1.6",
+  "version": "3.1.8",
   "manifest_version": 3,
   "description": "Wizmage hides images in a way that minimizes the impact on the user's browsing experience.",
   "icons": {

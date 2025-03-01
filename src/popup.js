@@ -6,10 +6,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     chrome.runtime.sendMessage({ r: 'getSettings', tab: activeTab }, function (settings) {
         document.getElementById('pauseChk').checked = settings.paused;
         document.getElementById('pauseTab').checked = settings.pausedForTab;
-        document.getElementById('excludeDomain').checked = settings.blackList ? !settings.excluded : settings.excluded;
+        document.getElementById('excludeDomain').checked = settings.excluded;
         document.getElementById('excludeForTab').checked = settings.excludedForTab;
         document.getElementById('exclude-domain-label').innerText = (settings.blackList ? 'Add' : 'Exclude') + ' Website';
-        document.getElementById('exclude-tab-wrap').style.display = settings.blackList ? 'none' : 'block';
+        document.getElementById('exclude-tab-wrap').style.display = 'block';
         closeOnClick = settings.closeOnClick;
     });
     document.getElementById('showImages').onclick = function () {

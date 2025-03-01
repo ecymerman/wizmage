@@ -61,7 +61,12 @@ window.addEventListener('DOMContentLoaded', function () { contentLoaded = true; 
 chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
     settings = s;
     //if is active - go
-    if (settings && !settings.excluded && !settings.excludedForTab && !settings.paused && !settings.pausedForTab) {
+    if (settings
+        && (
+            (!settings.blackList && !settings.excluded && !settings.excludedForTab)
+            || (settings.blackList && (settings.excluded || settings.excludedForTab))
+        )
+        && !settings.paused && !settings.pausedForTab) {
         //change icon
         chrome.runtime.sendMessage({ r: 'setColorIcon', toggle: true });
         //do main window
@@ -225,8 +230,10 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                         }
                         let oldHasLazy = m.oldValue != null && m.oldValue.indexOf('lazy') > -1,
                             newHasLazy = el.className != null && typeof (el.className) == 'string' && el.className.indexOf('lazy') > -1,
+                            oldHasImg = el.wzmWizmaged && m.oldValue != null && m.oldValue.indexOf('img') > -1,
+                            newHasImg = el.wzmWizmaged && el.className != null && typeof (el.className) == 'string' && el.className.indexOf('img') > -1,
                             addedBG = (!m.oldValue || m.oldValue.indexOf('_bg') == -1) && typeof (el.className) == 'string' && el.className.indexOf('_bg') > -1;
-                        if (oldHasLazy != newHasLazy || addedBG)
+                        if (oldHasLazy != newHasLazy || (!oldHasImg && newHasImg) || addedBG)
                             DoElements(el, true);
                     } else if (m.attributeName == 'style' && el.style.backgroundImage && el.style.backgroundImage.indexOf('url(') > - 1) {
                         let oldBgImg, oldBgImgMatch;
@@ -346,6 +353,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
     function DoElement(this: HTMLElement) {
         if (showAll) return;
         let el = this;
+        if (el.getAttribute('_ngcontent-web-shell-c3127009304') != null)
+            console.log(el);
         if (isImg(el)) {
             //attach load event - needed 1) as we need to catch it after it is switched for the blankImg, 2) in case the img gets changed to something else later
             DoLoadEventListener(el, true);

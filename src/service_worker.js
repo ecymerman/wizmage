@@ -82,8 +82,6 @@ chrome.runtime.onMessage.addListener(
                             for (let i = 0; i < urlList.length; i++) {
                                 if (lowerUrl.indexOf(urlList[i]) != -1) { _settings.excluded = true; break; }
                             }
-                            if (settings.blackList)
-                                _settings.excluded = !_settings.excluded;
                         }
                     }
                     sendResponse(_settings);

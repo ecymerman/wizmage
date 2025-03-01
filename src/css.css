@@ -8,34 +8,36 @@ html.wizmage-running > body { background-image: none !important; }
 
 .wizmage-pattern-bg-img.wizmage-cls { background-repeat: repeat !important; text-indent: 0 !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-0 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern0.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-0 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern0.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-0 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light0.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-0 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light0.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-1 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern1.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-1 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern1.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-1 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light1.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-1 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light1.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-2 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern2.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-2 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern2.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-2 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light2.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-2 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light2.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-3 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern3.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-3 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern3.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-3 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light3.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-3 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light3.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-4 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern4.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-4 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern4.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-4 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light4.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-4 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light4.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-5 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern5.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-5 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern5.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-5 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light5.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-5 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light5.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-6 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern6.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-6 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern6.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-6 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light6.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-6 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light6.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-7 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern7.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-shade-7 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern7.png) !important; }
 
-.wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-7 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light7.png) !important; }
+    .wizmage-pattern-bg-img.wizmage-cls.wizmage-light.wizmage-shade-7 { background-image: url(chrome-extension://__MSG_@@extension_id__/pattern-light7.png) !important; }
+
+html.wizmage-running div:before, html.wizmage-running div:after { background-image: none !important; }
