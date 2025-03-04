@@ -8,8 +8,8 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         document.getElementById('pauseTab').checked = settings.pausedForTab;
         document.getElementById('excludeDomain').checked = settings.excluded;
         document.getElementById('excludeForTab').checked = settings.excludedForTab;
-        document.getElementById('exclude-domain-label').innerText = (settings.blackList ? 'Add' : 'Exclude') + ' Website';
         document.getElementById('exclude-tab-wrap').style.display = 'block';
+        document.querySelectorAll('i-add-exclude').forEach(x => x.innerText = settings.blackList ? 'Add' : 'Exclude');
         closeOnClick = settings.closeOnClick;
     });
     document.getElementById('showImages').onclick = function () {
