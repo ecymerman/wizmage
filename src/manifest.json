@@ -1,9 +1,9 @@
 {
-  "name": "Wizmage Image Hider",
-  "short_name": "Wizmage",
-  "version": "3.1.9",
+  "name": "Wizmage AI",
+  "short_name": "WizmageAI",
+  "version": "1.0.1",
   "manifest_version": 3,
-  "description": "Wizmage hides images in a way that minimizes the impact on the user's browsing experience.",
+  "description": "Type or select what you don’t want to see — Wizmage AI will hide only those images for you.",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
@@ -27,7 +27,7 @@
       "all_frames": true
     }
   ],
-  "permissions": [ "tabs", "storage", "offscreen" ],
+  "permissions": [ "tabs", "storage" ],
   "web_accessible_resources": [
     {
       "resources": [

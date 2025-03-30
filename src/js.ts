@@ -24,7 +24,9 @@ interface HTMLElement {
     wzmHasHover?: boolean,
     wzmHasHoverVisual?: boolean,
     wzmClearHoverVisualTimer?: number,
-    wzmCheckTimeout?: number
+    wzmCheckTimeout?: number,
+    wzmBad?: boolean,
+    wzmUnchecked?: boolean
 }
 interface HTMLImageElement {
     wzmHasTitleAndSizeSetup?: boolean,
@@ -52,7 +54,9 @@ let showAll = false,
     iframes: HTMLIFrameElement[] = [],
     contentLoaded = false,
     settings: Settings | undefined,
-    quotesRegex = /['"]/g;
+    quotesRegex = /['"]/g,
+    //analyzeUrl = 'http://127.0.0.1:2345/analyze'; 
+    analyzeUrl = 'https://0tjvfkrk9p2xjg-2345.proxy.runpod.net/analyze';
 
 //keep track of contentLoaded
 window.addEventListener('DOMContentLoaded', function () { contentLoaded = true; });
@@ -352,7 +356,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
 
     function DoElement(this: HTMLElement) {
         if (showAll) return;
-        let el = this;
+        let el = this, imgUrl;
         if (el.getAttribute('_ngcontent-web-shell-c3127009304') != null)
             console.log(el);
         if (isImg(el)) {
@@ -370,7 +374,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             let elWidth = el.width, elHeight = el.height;
             if (el.src == blankImg && !el.srcset) { //was successfully replaced
                 DoHidden(el, false);
-            } else if ((elWidth == 0 || elWidth > _settings.maxSafe) && (elHeight == 0 || elHeight > _settings.maxSafe)) { //needs to be hidden - we need to catch 0 too, as sometimes images start off as zero
+            } else if ((elWidth == 0 || elWidth > _settings.maxSafe) && (elHeight == 0 || elHeight > _settings.maxSafe) && !(el.src && el.src.endsWith('.svg'))) { //needs to be hidden - we need to catch 0 too, as sometimes images start off as zero
                 DoMouseEventListeners(el, true);
                 if (!el.wzmHasTitleAndSizeSetup) {
                     el.style.width = elWidth + 'px';
@@ -384,6 +388,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                         }
                     el.wzmHasTitleAndSizeSetup = true;
                 }
+                imgUrl = el.src;
                 DoHidden(el, true);
                 DoImgSrc(el, true);
                 DoWizmageBG(el, true);
@@ -411,6 +416,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 && bgimg.indexOf('url(') != -1
                 && !bgimg.startsWith(urlExtensionUrl)
             ) {
+                imgUrl = bgimg;
                 DoWizmageBG(el, true);
                 DoMouseEventListeners(el, true);
                 if (el.wzmLastCheckedSrc != bgimg) {
@@ -426,6 +432,25 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             if (el.shadowRoot && !(<any>el.shadowRoot).wzmShadowSetup) {
                 setupBody(el.shadowRoot);
             }
+        }
+        if (imgUrl && imgUrl.startsWith('http')) {
+            chrome.runtime.sendMessage({ r: "getAnalyzeResponse", imgUrl },
+                (r) => {
+                    if (r == '1') {
+                        DoWizmageBG(el, false);
+                        el.wzmBad = true;
+                        DoWizmageBG(el, true);
+                        return;
+                    }
+                    if (r == '-1') {
+                        ShowEl.call(el);
+                        return;
+                    }
+                    DoWizmageBG(el, false);
+                    el.wzmUnchecked = true;
+                    DoWizmageBG(el, true);
+                }
+            );
         }
     }
     function CheckBgImg(this: GlobalEventHandlers) {
@@ -449,7 +474,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
 
     function DoWizmageBG(el: HTMLElement, toggle: boolean) {
         if (toggle && !el.wzmHasWizmageBG) {
-            let shade = Math.floor(Math.random() * 8);
+            let shade = el.wzmBad ? 5 : (el.wzmUnchecked ? 1 : 7);
             if (_settings.noPattern)
                 AddClass(el, 'wizmage-no-bg');
             else {

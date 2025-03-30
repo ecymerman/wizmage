@@ -3,51 +3,23 @@ chrome.runtime.onInstalled.addListener(
     async function () {
         let { urlList, settings } = await chrome.storage.local.get(['urlList', 'settings']);
         if (!urlList || !settings) {
-            if (chrome.offscreen && 'LOCAL_STORAGE' in chrome.offscreen.Reason) {
-                let offscreenPromise = new Promise(resolve => {
-                    let migrateSettingsListener = request => {
-                        if (request.r != 'migrateSettings')
-                            return;
-                        let s = JSON.parse(request.storage);
-                        urlList = s.urlList ? JSON.parse(s.urlList) : [];
-                        settings = {
-                            paused: s.isPaused == '1',
-                            noPattern: s.isNoPattern == '1',
-                            noEye: s.isNoEye == '1',
-                            blackList: s.isBlackList == '1',
-                            closeOnClick: s.closeOnClick == '1',
-                            maxSafe: +s.maxSafe || 32
-                        };
-                        chrome.storage.local.set({ urlList, settings });
-                        resolve();
-                        chrome.runtime.onMessage.removeListener(migrateSettingsListener);
-                    };
-                    chrome.runtime.onMessage.addListener(migrateSettingsListener);
-                });
-                await chrome.offscreen.createDocument({
-                    url: 'migrate-settings.htm',
-                    reasons: ['LOCAL_STORAGE'],
-                    justification: 'migrate settings from manifest v2',
-                });
-                await offscreenPromise;
-                await chrome.offscreen.closeDocument();
-            }
-            else {
-                chrome.storage.local.set({
-                    urlList: [],
-                    settings: {
-                        paused: false,
-                        noPattern: false,
-                        noEye: false,
-                        blackList: false,
-                        closeOnClick: false,
-                        maxSafe: 32
-                    }
-                });
-            }
+            chrome.storage.local.set({
+                urlList: [],
+                settings: {
+                    paused: false,
+                    noPattern: false,
+                    noEye: false,
+                    blackList: false,
+                    closeOnClick: false,
+                    maxSafe: 32
+                }
+            });
         }
     }
 );
+
+/** @type {WebSocket} */
+let ws, settings;
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
@@ -133,7 +105,7 @@ chrome.runtime.onMessage.addListener(
                     break;
                 }
                 case 'pause': {
-                    let { settings } = await chrome.storage.local.get('settings');
+                    await getSettings();
                     settings.paused = request.toggle;
                     chrome.storage.local.set({ settings });
                     break;
@@ -149,19 +121,19 @@ chrome.runtime.onMessage.addListener(
                     break;
                 }
                 case 'setNoPattern': {
-                    let { settings } = await chrome.storage.local.get('settings');
+                    await getSettings();
                     settings.noPattern = request.toggle;
                     chrome.storage.local.set({ settings });
                     break;
                 }
                 case 'setNoEye': {
-                    let { settings } = await chrome.storage.local.get('settings');
+                    await getSettings();
                     settings.noEye = request.toggle;
                     chrome.storage.local.set({ settings });
                     break;
                 }
                 case 'setBlackList': {
-                    let { settings } = await chrome.storage.local.get('settings');
+                    await getSettings();
                     settings.blackList = request.toggle;
                     chrome.storage.local.set({ settings });
                     break;
@@ -170,15 +142,95 @@ chrome.runtime.onMessage.addListener(
                     let ms = +request.maxSafe;
                     if (!ms || ms < 1 || ms > 1000)
                         ms = 32;
-                    let { settings } = await chrome.storage.local.get('settings');
+                    await getSettings();
                     settings.maxSafe = ms;
                     chrome.storage.local.set({ settings });
                     break;
                 }
                 case 'setCloseOnClick': {
-                    let { settings } = await chrome.storage.local.get('settings');
+                    await getSettings();
                     settings.closeOnClick = request.toggle;
                     chrome.storage.local.set({ settings });
+                    break;
+                }
+                case 'setUnwanted': {
+                    await getSettings();
+                    settings.unwanted = request.unwanted;
+                    chrome.storage.local.set({ settings });
+                    break;
+                }
+                case 'getSetCodeR': {
+                    let ok = false;
+                    if (request.code) {
+                        try {
+                            let r = await fetch('https://wizman.tandola.com:2345/check_code?code=' + request.code);
+                            let t = await r.text();
+                            ok = t == 1;
+                        }
+                        catch {
+                            sendResponse({ err: 'Could not connect to server.' });
+                            return;
+                        }
+                    }
+                    if (!request.code || ok) {
+                        await getSettings();
+                        settings.code = request.code;
+                        chrome.storage.local.set({ settings });
+                    }
+                    sendResponse({ ok });
+                    break;
+                }
+                case 'getAnalyzeResponse': {
+                    await getSettings();
+                    if (!settings.unwanted) {
+                        sendResponse(0);
+                        return;
+                    }
+                    if (!ws || ws.readyState == WebSocket.CLOSING || ws.readyState == WebSocket.CLOSED) {
+                        if (!settings.code) {
+                            sendResponse(0);
+                            return;
+                        }
+                        ws = new WebSocket('wss://wizman.tandola.com:2345/ws?code=' + settings.code);
+                        ws.img_id = 0;
+                        ws.resolveMap = new Map();
+                        ws.openPromise = new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
+                        ws.onmessage = x => {
+                            console.log(x.data)
+                            let d = JSON.parse(x.data), resolve = ws.resolveMap.get(d.img_id);
+                            resolve(d.result);
+                        }
+                    }
+                    try {
+                        await ws.openPromise;
+                    } catch {
+                        sendResponse(0);
+                        return;
+                    }
+
+                    let img_id = ++ws.img_id, url = request.imgUrl;
+                    console.log('got: ' + url)
+                    ws.send(JSON.stringify({ img_id, url, unwanted: settings.unwanted }))
+                    let r = await new Promise(resolve => {
+                        ws.resolveMap.set(img_id, resolve)
+                    });
+                    console.log(url + ': ' + img_id + ': ' + r)
+                    sendResponse(r)
+
+                    ////let analyzeUrl = 'https://0tjvfkrk9p2xjg-2345.proxy.runpod.net/analyze';
+                    //let analyzeUrl = 'http://78.141.241.57:2345/analyze';
+                    //try {
+                    //    let r = await fetch(analyzeUrl, {
+                    //        method: 'POST',
+                    //        headers: { "Content-Type": "application/json" },
+                    //        body: JSON.stringify({ unwanted: 'a woman', url: request.imgUrl })
+                    //    });
+                    //    let t = await r.text();
+                    //    sendResponse(t);
+                    //}
+                    //catch {
+                    //    sendResponse('0');
+                    //}
                     break;
                 }
             }
@@ -189,4 +241,10 @@ chrome.runtime.onMessage.addListener(
 function getDomain(url) {
     let regex = /^\w+:\/\/([\w\.:-]+)/.exec(url);
     return regex ? regex[1].toLowerCase() : null;
+}
+async function getSettings() {
+    if (!settings) {
+        let o = await chrome.storage.local.get('settings');
+        settings = o.settings;
+    }
 }

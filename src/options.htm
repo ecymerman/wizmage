@@ -5,6 +5,7 @@
     <style>
         body { background: #004; font-family: arial; }
         #cont { width: 525px; background: #B1F0B1; margin: auto; margin-top: 50px; padding: 20px; border-radius: 20px; }
+            #cont h2 { margin-bottom: 5px; font-size: 14px; }
         #list { border-radius: 10px; width: 500px; border: 2px solid #AA1212; padding: 10px; margin: 10px 0px; }
         h3 { margin-bottom: 10px; }
             h3 > * { vertical-align: middle; margin: 0; }
@@ -15,11 +16,38 @@
         #addName { width: 400px; border: 1px solid green; border-radius: 5px; padding: 0px 5px; }
         .info-icon { background: black; color: white; border-radius: 10px; padding: 0 4px; cursor: default; }
         input[type=checkbox] { vertical-align: middle; }
+
+        #code-w { margin-bottom: 20px; }
+            #code-w a { color: blue; text-decoration: underline; cursor: pointer; }
+            #code-w:not(.editing) > #code-set { display: none; }
+            #code-w.editing #code-t { display: none; }
+        #unwanted-w { margin-bottom: 20px; }
+            #unwanted-w:not(.cust) > #unwanted-cust { display: none; }
     </style>
 </head>
 <body>
     <div id='cont'>
         <h3>Settings</h3>
+        <div id="code-w">
+            <h2>Server Code</h2>
+            <div id="code-t">
+                <span id="code-t-t"></span>
+                <a id="code-t-edit">edit</a>
+            </div>
+            <div id="code-set">
+                <input id="code-set-i" />
+                <a id="code-set-ok">ok</a>
+                <a id="code-set-cancel">cancel</a>
+            </div>
+        </div>
+        <div id="unwanted-w">
+            <h2>Block any image that contains:</h2>
+            <select id="unwanted-opt">
+                <option value=""></option>
+                <option value="cust">(custom)</option>
+            </select>
+            <input id="unwanted-cust" />
+        </div>
         <div>
             <input type="checkbox" id="noPattern" />
             <label for="noPattern">Don't show pattern for hidden images</label>
