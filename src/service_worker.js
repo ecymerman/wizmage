@@ -19,7 +19,7 @@ chrome.runtime.onInstalled.addListener(
 );
 
 /** @type {WebSocket} */
-let ws, settings;
+let ws_g, settings;
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
@@ -182,55 +182,53 @@ chrome.runtime.onMessage.addListener(
                 }
                 case 'getAnalyzeResponse': {
                     await getSettings();
-                    if (!settings.unwanted) {
+                    let code = settings.code, unwanted = settings.unwanted;
+                    if (!code || !unwanted) {
                         sendResponse(0);
                         return;
                     }
+                    let ws = ws_g;
                     if (!ws || ws.readyState == WebSocket.CLOSING || ws.readyState == WebSocket.CLOSED) {
-                        if (!settings.code) {
+                        ws_g = ws = new WebSocket('wss://wizman.tandola.com:2345/ws?code=' + code);
+                        ws.img_id = 0;
+                        ws.openPromise = new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
+                        ws.onmessage = x => {
+                            let d = JSON.parse(x.data);
+                            sendResult(ws, d.img_id, d.result, true);
+                        }
+                        ws.reqCallbacks = new Map();
+                        ws.addReq = (data, callback) => {
+                            if (!ws.sendQueue) {
+                                ws.sendQueue = [];
+                                setTimeout(async () => {
+                                    let requests = ws.sendQueue;
+                                    ws.sendQueue = null;
+                                    await ws.openPromise;
+                                    if (ws.readyState == WebSocket.CLOSING || ws.readyState == WebSocket.CLOSED) {
+                                        requests.forEach(x => sendResult(ws, x.img_id, 0));
+                                        return;
+                                    }
+                                    ws.send(JSON.stringify({ requests, unwanted }))
+                                }, 100);
+                            }
+                            ws.sendQueue.push(data);
+                            ws.reqCallbacks.set(data.img_id, callback);
+                        }
+                    }
+
+                    let img_id = ++ws.img_id, url = request.imgUrl, b64, hash;
+                    if (url.startsWith('data:')) {
+                        let m = /data:image\/\w+;base64,(.+)/.exec(url);
+                        if (!m) {
                             sendResponse(0);
                             return;
                         }
-                        ws = new WebSocket('wss://wizman.tandola.com:2345/ws?code=' + settings.code);
-                        ws.img_id = 0;
-                        ws.resolveMap = new Map();
-                        ws.openPromise = new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
-                        ws.onmessage = x => {
-                            console.log(x.data)
-                            let d = JSON.parse(x.data), resolve = ws.resolveMap.get(d.img_id);
-                            resolve(d.result);
-                        }
+                        b64 = m[1];
+                        hash = hash64(b64);
+                        url = 'hash:' + hash;
                     }
-                    try {
-                        await ws.openPromise;
-                    } catch {
-                        sendResponse(0);
-                        return;
-                    }
+                    ws.addReq({ img_id, url }, { sendResponse, b64, hash });
 
-                    let img_id = ++ws.img_id, url = request.imgUrl;
-                    console.log('got: ' + url)
-                    ws.send(JSON.stringify({ img_id, url, unwanted: settings.unwanted }))
-                    let r = await new Promise(resolve => {
-                        ws.resolveMap.set(img_id, resolve)
-                    });
-                    console.log(url + ': ' + img_id + ': ' + r)
-                    sendResponse(r)
-
-                    ////let analyzeUrl = 'https://0tjvfkrk9p2xjg-2345.proxy.runpod.net/analyze';
-                    //let analyzeUrl = 'http://78.141.241.57:2345/analyze';
-                    //try {
-                    //    let r = await fetch(analyzeUrl, {
-                    //        method: 'POST',
-                    //        headers: { "Content-Type": "application/json" },
-                    //        body: JSON.stringify({ unwanted: 'a woman', url: request.imgUrl })
-                    //    });
-                    //    let t = await r.text();
-                    //    sendResponse(t);
-                    //}
-                    //catch {
-                    //    sendResponse('0');
-                    //}
                     break;
                 }
             }
@@ -242,9 +240,31 @@ function getDomain(url) {
     let regex = /^\w+:\/\/([\w\.:-]+)/.exec(url);
     return regex ? regex[1].toLowerCase() : null;
 }
+function sendResult(ws, img_id, result, fromAnalysis) {
+    let v = ws.reqCallbacks.get(img_id);
+    if (v) {
+        if (result == 0 && fromAnalysis && v.b64) {
+            ws.addReq({ img_id, url: 'hash:' + v.hash, b64: v.b64 }, { sendResponse: v.sendResponse });
+            return;
+        }
+        v.sendResponse(result);
+        ws.reqCallbacks.delete(img_id);
+    }
+}
 async function getSettings() {
     if (!settings) {
         let o = await chrome.storage.local.get('settings');
         settings = o.settings;
     }
+}
+function hash64(str) {
+    let h1 = 0x811c9dc5, h2 = 0x01000193;
+    for (let i = 0; i < str.length; i++) {
+        const ch = str.charCodeAt(i);
+        h1 = (h1 ^ ch) * 16777619;
+        h1 |= 0;
+        h2 = (h2 ^ ch) * 16777619;
+        h2 |= 0;
+    }
+    return (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0');
 }

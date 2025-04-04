@@ -357,8 +357,6 @@ function DoWin(win: Window, winContentLoaded: boolean) {
     function DoElement(this: HTMLElement) {
         if (showAll) return;
         let el = this, imgUrl;
-        if (el.getAttribute('_ngcontent-web-shell-c3127009304') != null)
-            console.log(el);
         if (isImg(el)) {
             //attach load event - needed 1) as we need to catch it after it is switched for the blankImg, 2) in case the img gets changed to something else later
             DoLoadEventListener(el, true);
@@ -433,7 +431,13 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 setupBody(el.shadowRoot);
             }
         }
-        if (imgUrl && imgUrl.startsWith('http')) {
+        if (imgUrl) {
+            imgUrl = imgUrl.trim();
+            let m = /^url\("?'?(.+?)"?'?\)$/.exec(imgUrl);
+            if (m)
+                imgUrl = m[1];
+        }
+        if (imgUrl && (imgUrl.startsWith('http') || imgUrl.startsWith('data:'))) {
             chrome.runtime.sendMessage({ r: "getAnalyzeResponse", imgUrl },
                 (r) => {
                     if (r == '1') {
