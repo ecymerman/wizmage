@@ -197,6 +197,7 @@ chrome.runtime.onMessage.addListener(
                             sendResult(ws, d.img_id, d.result, true);
                         }
                         ws.reqCallbacks = new Map();
+                        ws.urlResults = new Map();
                         ws.addReq = (data, callback) => {
                             if (!ws.sendQueue) {
                                 ws.sendQueue = [];
@@ -213,10 +214,11 @@ chrome.runtime.onMessage.addListener(
                             }
                             ws.sendQueue.push(data);
                             ws.reqCallbacks.set(data.img_id, callback);
+                            ws.urlResults.set(data.url, { sendResponses: callback.sendResponses, time: Date.now() });
                         }
                     }
 
-                    let img_id = ++ws.img_id, url = request.imgUrl, b64, hash;
+                    let img_id = ++ws.img_id, url = request.imgUrl, b64;
                     if (url.startsWith('data:')) {
                         let m = /data:image\/\w+;base64,(.+)/.exec(url);
                         if (!m) {
@@ -224,11 +226,22 @@ chrome.runtime.onMessage.addListener(
                             return;
                         }
                         b64 = m[1];
-                        hash = hash64(b64);
-                        url = 'hash:' + hash;
+                        url = 'hash:' + hash64(b64);
                     }
-                    ws.addReq({ img_id, url }, { sendResponse, b64, hash });
+                    let urlResult = ws.urlResults.get(url);
+                    if (urlResult && urlResult.sendResponses && Date.now() - urlResult.time < 1000 * 30) {
+                        urlResult.sendResponses.push(sendResponse);
+                        break;
+                    }
+                    if (urlResult && urlResult.result) {
+                        sendResponse(urlResult.result);
+                        break;
+                    }
 
+                    let callback = { sendResponses: [sendResponse], url };
+                    if (b64)
+                        callback.tryNext = { b64 };
+                    ws.addReq({ img_id, url }, callback);
                     break;
                 }
             }
@@ -243,12 +256,14 @@ function getDomain(url) {
 function sendResult(ws, img_id, result, fromAnalysis) {
     let v = ws.reqCallbacks.get(img_id);
     if (v) {
-        if (result == 0 && fromAnalysis && v.b64) {
-            ws.addReq({ img_id, url: 'hash:' + v.hash, b64: v.b64 }, { sendResponse: v.sendResponse });
+        let url = v.url;
+        if (result == 0 && fromAnalysis && v.tryNext) {
+            ws.addReq({ img_id, url, ...v.tryNext }, { sendResponses: v.sendResponses, url });
             return;
         }
-        v.sendResponse(result);
+        v.sendResponses.forEach(x => x(result));
         ws.reqCallbacks.delete(img_id);
+        ws.urlResults.set(url, { result });
     }
 }
 async function getSettings() {
