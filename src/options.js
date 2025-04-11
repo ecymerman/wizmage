@@ -145,5 +145,5 @@
             unwanted_w.classList.remove('cust');
         saveUnwanted();
     }
-
+    unwanted_cust.oninput = saveUnwanted;
 }

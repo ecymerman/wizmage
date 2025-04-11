@@ -188,6 +188,10 @@ chrome.runtime.onMessage.addListener(
                         return;
                     }
                     let ws = ws_g;
+                    if (ws && ws.unwanted != unwanted){
+                        ws.close();
+                        ws = null;
+                    }
                     if (!ws || ws.readyState == WebSocket.CLOSING || ws.readyState == WebSocket.CLOSED) {
                         ws_g = ws = new WebSocket('wss://wizman.tandola.com:2345/ws?code=' + code);
                         ws.img_id = 0;
@@ -216,6 +220,7 @@ chrome.runtime.onMessage.addListener(
                             ws.reqCallbacks.set(data.img_id, callback);
                             ws.urlResults.set(data.url, { sendResponses: callback.sendResponses, time: Date.now() });
                         }
+                        ws.unwanted = unwanted;
                     }
 
                     let img_id = ++ws.img_id, url = request.imgUrl, b64;
