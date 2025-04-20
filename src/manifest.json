@@ -1,9 +1,9 @@
 {
   "name": "Wizmage AI",
   "short_name": "WizmageAI",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "manifest_version": 3,
-  "description": "Type or select what you don't want to see — Wizmage AI will hide only those images for you.",
+  "description": "Select or type what you don't want to see — Wizmage AI will hide only those images for you.",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
@@ -20,14 +20,23 @@
   "options_page": "options.htm",
   "content_scripts": [
     {
-      "matches": [ "<all_urls>" ],
-      "js": [ "js.js" ],
-      "css": [ "css.css" ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "js.js"
+      ],
+      "css": [
+        "css.css"
+      ],
       "run_at": "document_start",
       "all_frames": true
     }
   ],
-  "permissions": [ "tabs", "storage" ],
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
   "web_accessible_resources": [
     {
       "resources": [
@@ -51,7 +60,9 @@
         "undo.png",
         "css.css"
       ],
-      "matches": [ "<all_urls>" ]
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

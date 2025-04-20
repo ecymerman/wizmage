@@ -7,7 +7,6 @@ chrome.runtime.onInstalled.addListener(
                 urlList: [],
                 settings: {
                     paused: false,
-                    noPattern: false,
                     noEye: false,
                     blackList: false,
                     closeOnClick: false,
@@ -120,12 +119,6 @@ chrome.runtime.onMessage.addListener(
                     chrome.storage.session.set({ pauseForTabs });
                     break;
                 }
-                case 'setNoPattern': {
-                    await getSettings();
-                    settings.noPattern = request.toggle;
-                    chrome.storage.local.set({ settings });
-                    break;
-                }
                 case 'setNoEye': {
                     await getSettings();
                     settings.noEye = request.toggle;
@@ -159,27 +152,12 @@ chrome.runtime.onMessage.addListener(
                     chrome.storage.local.set({ settings });
                     break;
                 }
-                case 'getSetCodeR': {
-                    let ok = false;
-                    if (request.code) {
-                        try {
-                            let r = await fetch('https://wizman.tandola.com:2345/check_code?code=' + request.code);
-                            let t = await r.text();
-                            ok = t == 1;
-                        }
-                        catch {
-                            sendResponse({ err: 'Could not connect to server.' });
-                            return;
-                        }
-                    }
-                    if (!request.code || ok) {
-                        await getSettings();
-                        settings.code = request.code;
-                        chrome.storage.local.set({ settings });
-                    }
-                    sendResponse({ ok });
+                case 'setToken':
+                    await getSettings();
+                    settings.token = request.token;
+                    settings.phone = request.phone;
+                    chrome.storage.local.set({ settings });
                     break;
-                }
                 case 'getAnalyzeResponse': {
                     await getSettings();
                     let code = settings.code, unwanted = settings.unwanted;
@@ -188,12 +166,12 @@ chrome.runtime.onMessage.addListener(
                         return;
                     }
                     let ws = ws_g;
-                    if (ws && ws.unwanted != unwanted){
+                    if (ws && ws.unwanted != unwanted) {
                         ws.close();
                         ws = null;
                     }
                     if (!ws || ws.readyState == WebSocket.CLOSING || ws.readyState == WebSocket.CLOSED) {
-                        ws_g = ws = new WebSocket('wss://wizman.tandola.com:2345/ws?code=' + code);
+                        ws_g = ws = new WebSocket('wss://wizman.wizmage.com/ws?token=' + code);
                         ws.img_id = 0;
                         ws.openPromise = new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
                         ws.onmessage = x => {

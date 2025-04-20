@@ -3,7 +3,6 @@ interface Window {
 }
 interface Settings {
     paused: boolean,
-    noPattern: boolean,
     noEye: boolean,
     blackList: boolean,
     maxSafe: number,
@@ -479,22 +478,14 @@ function DoWin(win: Window, winContentLoaded: boolean) {
     function DoWizmageBG(el: HTMLElement, toggle: boolean) {
         if (toggle && !el.wzmHasWizmageBG) {
             let shade = el.wzmBad ? 5 : (el.wzmUnchecked ? 1 : 7);
-            if (_settings.noPattern)
-                AddClass(el, 'wizmage-no-bg');
-            else {
-                el.wzmShade = shade;
-                AddClass(el, 'wizmage-pattern-bg-img wizmage-cls wizmage-shade-' + shade);
-            }
+            el.wzmShade = shade;
+            AddClass(el, 'wizmage-pattern-bg-img wizmage-cls wizmage-shade-' + shade);
             el.wzmHasWizmageBG = true;
             MarkWizmaged(el, true);
         } else if (!toggle && el.wzmHasWizmageBG) {
-            if (_settings.noPattern)
-                RemoveClass(el, 'wizmage-no-bg');
-            else {
-                RemoveClass(el, 'wizmage-pattern-bg-img');
-                RemoveClass(el, 'wizmage-cls');
-                RemoveClass(el, 'wizmage-shade-' + el.wzmShade);
-            }
+            RemoveClass(el, 'wizmage-pattern-bg-img');
+            RemoveClass(el, 'wizmage-cls');
+            RemoveClass(el, 'wizmage-shade-' + el.wzmShade);
             el.wzmHasWizmageBG = false;
             MarkWizmaged(el, false);
         }

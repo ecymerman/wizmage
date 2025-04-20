@@ -4,6 +4,18 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.tabs.sendMessage(activeTab.id, { r: 'showImages' });
     }
     chrome.runtime.sendMessage({ r: 'getSettings', tab: activeTab }, function (settings) {
+        let showErr = msg => {
+            document.getElementById('when-running').style.display = 'none';
+            document.getElementById('err-msg').innerText = msg;
+        }
+        if (!settings.token) {
+            showErr('Go to Options, and set your phone number.')
+            return;
+        }
+        if (!settings.unwanted) {
+            showErr('Go to Options, and select what you wish to block.')
+            return;
+        }
         document.getElementById('pauseChk').checked = settings.paused;
         document.getElementById('pauseTab').checked = settings.pausedForTab;
         document.getElementById('excludeDomain').checked = settings.excluded;

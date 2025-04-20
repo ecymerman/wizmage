@@ -1,45 +1,50 @@
 <html>
+
 <head>
     <title>Wizmage</title>
     <link href="popup.css" rel="stylesheet" />
 </head>
+
 <body>
     <div style='width: 150px; color: blue;'>
         <div class='item'>
             <a id='options' href="options.htm" target="_blank">Options</a>
             <div id="close">&#x2715;</div>
         </div>
-        <div class='item'>
-            <button type="button" id='showImages'>Show Images</button>
-        </div>
-        <div class='item'>
-            <input type='checkbox' id='excludeDomain'>
-            <label for='excludeDomain'><i-add-exclude></i-add-exclude> Website</label>
-        </div>
-        <div id="exclude-tab-wrap">
+        <div id="when-running">
             <div class='item'>
-                <input type='checkbox' id='excludeForTab'>
-                <label for='excludeForTab'><i-add-exclude></i-add-exclude> Website<br />
+                <button type="button" id='showImages'>Show Images</button>
+            </div>
+            <div class='item'>
+                <input type='checkbox' id='excludeDomain'>
+                <label for='excludeDomain'><i-add-exclude></i-add-exclude> Website</label>
+            </div>
+            <div id="exclude-tab-wrap">
+                <div class='item'>
+                    <input type='checkbox' id='excludeForTab'>
+                    <label for='excludeForTab'><i-add-exclude></i-add-exclude> Website<br />
+                        for this Tab</label>
+                </div>
+            </div>
+            <div class='item'>
+                <input type='checkbox' id='pauseChk'>
+                <label for='pauseChk'>Pause</label>
+            </div>
+            <div class='item'>
+                <input type='checkbox' id='pauseTab'>
+                <label for='pauseTab'>Pause<br />
                     for this Tab</label>
             </div>
+            <div class="item">
+                <div><a id="still-seeing-images">Still seeing images?</a></div>
+                <ul id="advice">
+                    <li>Email: ai@wizmage.com</li>
+                </ul>
+            </div>
         </div>
-        <div class='item'>
-            <input type='checkbox' id='pauseChk'>
-            <label for='pauseChk'>Pause</label>
-        </div>
-        <div class='item'>
-            <input type='checkbox' id='pauseTab'>
-            <label for='pauseTab'>Pause<br />
-                for this Tab</label>
-        </div>
-        <!--<a href="https://wizmage.com" id="wizmage-plus" target="_blank">WizmagePlus <img src="new.png" /></a>-->
-        <div class="item">
-            <div><a id="still-seeing-images">Still seeing images?</a></div>
-            <ul id="advice">
-                <li>Email: wizmageextension@gmail.com</li>
-            </ul>
-        </div>
+        <div id="err-msg"></div>
     </div>
     <script src='popup.js' type='text/javascript'></script>
 </body>
+
 </html>
