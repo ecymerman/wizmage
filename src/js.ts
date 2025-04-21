@@ -25,7 +25,8 @@ interface HTMLElement {
     wzmClearHoverVisualTimer?: number,
     wzmCheckTimeout?: number,
     wzmBad?: boolean,
-    wzmUnchecked?: boolean
+    wzmUnchecked?: boolean,
+    wzmAllowSrc?: { src?: string, srcset?: string }
 }
 interface HTMLImageElement {
     wzmHasTitleAndSizeSetup?: boolean,
@@ -53,9 +54,7 @@ let showAll = false,
     iframes: HTMLIFrameElement[] = [],
     contentLoaded = false,
     settings: Settings | undefined,
-    quotesRegex = /['"]/g,
-    //analyzeUrl = 'http://127.0.0.1:2345/analyze'; 
-    analyzeUrl = 'https://0tjvfkrk9p2xjg-2345.proxy.runpod.net/analyze';
+    quotesRegex = /['"]/g;
 
 //keep track of contentLoaded
 window.addEventListener('DOMContentLoaded', function () { contentLoaded = true; });
@@ -369,7 +368,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             }
 
             let elWidth = el.width, elHeight = el.height;
-            if (el.src == blankImg && !el.srcset) { //was successfully replaced
+            if ((el.src == blankImg && !el.srcset) || (el.wzmAllowSrc && el.src == el.wzmAllowSrc.src && el.srcset == el.wzmAllowSrc.srcset)) { //was successfully replaced
                 DoHidden(el, false);
             } else if ((elWidth == 0 || elWidth > _settings.maxSafe) && (elHeight == 0 || elHeight > _settings.maxSafe) && !(el.src && el.src.endsWith('.svg'))) { //needs to be hidden - we need to catch 0 too, as sometimes images start off as zero
                 DoMouseEventListeners(el, true);
@@ -435,25 +434,27 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             let m = /^url\("?'?(.+?)"?'?\)$/.exec(imgUrl);
             if (m)
                 imgUrl = m[1];
-        }
-        if (imgUrl && (imgUrl.startsWith('http') || imgUrl.startsWith('data:'))) {
-            chrome.runtime.sendMessage({ r: "getAnalyzeResponse", imgUrl },
-                (r) => {
-                    if (r == '1') {
+            if (imgUrl.startsWith('http') || imgUrl.startsWith('data:')) {
+                chrome.runtime.sendMessage({ r: "getAnalyzeResponse", imgUrl },
+                    (r) => {
+                        if (isImg(el) && el.src != blankImg && el.src != imgUrl)
+                            return;
+                        if (r == '1') {
+                            DoWizmageBG(el, false);
+                            el.wzmBad = true;
+                            DoWizmageBG(el, true);
+                            return;
+                        }
+                        if (r == '-1') {
+                            ShowEl.call(el);
+                            return;
+                        }
                         DoWizmageBG(el, false);
-                        el.wzmBad = true;
+                        el.wzmUnchecked = true;
                         DoWizmageBG(el, true);
-                        return;
                     }
-                    if (r == '-1') {
-                        ShowEl.call(el);
-                        return;
-                    }
-                    DoWizmageBG(el, false);
-                    el.wzmUnchecked = true;
-                    DoWizmageBG(el, true);
-                }
-            );
+                );
+            }
         }
     }
     function CheckBgImg(this: GlobalEventHandlers) {
@@ -669,8 +670,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
         let el = this;
         DoHidden(el, false);
         if (isImg(el)) {
-            DoLoadEventListener(el, false);
             DoImgSrc(el, false);
+            el.wzmAllowSrc = { src: el.src, srcset: el.srcset };
             DoWizmageBG(el, false);
         }
         else if (el.tagName == 'VIDEO') {
