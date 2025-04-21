@@ -160,8 +160,8 @@ chrome.runtime.onMessage.addListener(
                     break;
                 case 'getAnalyzeResponse': {
                     await getSettings();
-                    let code = settings.code, unwanted = settings.unwanted;
-                    if (!code || !unwanted) {
+                    let token = settings.token, unwanted = settings.unwanted;
+                    if (!token || !unwanted) {
                         sendResponse(0);
                         return;
                     }
@@ -170,13 +170,15 @@ chrome.runtime.onMessage.addListener(
                         ws.close();
                         ws = null;
                     }
-                    if (!ws || ws.readyState == WebSocket.CLOSING || ws.readyState == WebSocket.CLOSED) {
-                        ws_g = ws = new WebSocket('wss://wizman.wizmage.com/ws?token=' + code);
+                    if (!ws || ws.readyState == WebSocket.CLOSING || ws.readyState == WebSocket.CLOSED || Date.now() - ws.lastMsg > 1000 * 40) {
+                        ws_g = ws = new WebSocket('wss://wizman.wizmage.com/ws?token=' + token);
                         ws.img_id = 0;
                         ws.openPromise = new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
                         ws.onmessage = x => {
                             let d = JSON.parse(x.data);
-                            sendResult(ws, d.img_id, d.result, true);
+                            if (d.img_id)
+                                sendResult(ws, d.img_id, d.result, true);
+                            ws.lastMsg = Date.now()
                         }
                         ws.reqCallbacks = new Map();
                         ws.urlResults = new Map();
