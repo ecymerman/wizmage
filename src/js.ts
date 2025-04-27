@@ -68,7 +68,7 @@ chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
             (!settings.blackList && !settings.excluded && !settings.excludedForTab)
             || (settings.blackList && (settings.excluded || settings.excludedForTab))
         )
-        && !settings.paused && !settings.pausedForTab) {
+        && !settings.paused && !settings.pausedForTab && location.host != 'mail.google.com') {
         //change icon
         chrome.runtime.sendMessage({ r: 'setColorIcon', toggle: true });
         //do main window
@@ -82,7 +82,7 @@ chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
                 let m = mutations[i];
                 if (m.type == 'attributes') {
                     let el = <HTMLElement>m.target;
-                    if (el.tagName == 'HTML' && m.attributeName == 'class') {
+                    if (el == document.documentElement && m.attributeName == 'class') {
                         if (el.className.indexOf('wizmage-show-html') == -1)
                             AddClass(el, 'wizmage-show-html');
                     }
@@ -90,7 +90,7 @@ chrome.runtime.sendMessage({ r: 'getSettings' }, function (s: Settings) {
                 else if (m.addedNodes != null && m.addedNodes.length > 0) {
                     for (let j = 0; j < m.addedNodes.length; j++) {
                         let el = <HTMLElement>m.addedNodes[j];
-                        if (el.tagName == 'HTML')
+                        if (el == document.documentElement)
                             AddClass(el, 'wizmage-show-html wizmage-running');
                     }
                 }
@@ -223,7 +223,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 let m = mutations[i], el = <HTMLElement>m.target;
                 if (m.type == 'attributes') {
                     if (m.attributeName == 'class') {
-                        if (el.tagName == 'HTML') {
+                        if (el == document.documentElement) {
                             //incase the website is messing with the <html> classes
                             if (el.className.indexOf('wizmage-show-html') == -1)
                                 AddClass(el, 'wizmage-show-html');
@@ -258,7 +258,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                             continue;
                         if (el.tagName == 'IFRAME')
                             DoIframe(<HTMLIFrameElement>el);
-                        else if (el.tagName == 'HTML')
+                        else if (el == document.documentElement)
                             AddClass(el, 'wizmage-show-html wizmage-running');
                         else if (el.tagName == 'SOURCE') {
                             if (!showAll)

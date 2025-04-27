@@ -4,7 +4,7 @@
         originalAppend.apply(this, args);
         return this;
     };
-    Element.prototype.text = function (t) {
+    Element.prototype.setText = function (t) {
         this.innerText = t;
         return this;
     }
@@ -25,7 +25,7 @@
         closeOnClick.checked = settings.closeOnClick;
         (settings.blackList ? blackList : whiteList).checked = true;
         maxSafe.value = settings.maxSafe;
-        $phone_t_t.text(settings.phone || 'No Phone Number')
+        $phone_t_t.setText(settings.phone || 'No Phone Number')
         if (settings.unwanted) {
             if (unwanted_ideas.indexOf(settings.unwanted) > -1) {
                 $unwanted_opt.value = settings.unwanted;
@@ -114,9 +114,10 @@
         let $cc = $m('cc', 'input', { type: 'number', required: true, maxlength: 3 }),
             $num = $m('num', 'input', { type: 'number', required: true }),
             $phoneD = $m('dialog', 'form').append($m('c').append(
-                $m('h').text('Enter your phone number.\nWe will send you a verification code via WhatsApp.'),
-                $m('phone').append($m('plus', 'span').text('+'), $cc, $num),
-                $m('ctrls').append($m('cont', 'button').text('Continue'))
+                $m('h').setText('Enter your phone number.\nWe will send you a verification code via WhatsApp.'),
+                $m('phone').append($m('plus', 'span').setText('+'), $cc, $num),
+                $m('ctrls').append($m('cont', 'button').setText('Continue')),
+                $m('why').append($m('', 'a', { href: 'https://wizmage.com/ai#privacy', target: '_blank' }).setText('Why & Privacy'))
             ));
         $cc.oninput = () => {
             if ($cc.value && countryCodes.indexOf(+$cc.value) > -1)
@@ -137,33 +138,24 @@
             },
             (data, r) => {
                 let phone = data.phone,
-                    $code = $m('i', 'input', { required: true, name: 'code', type: 'number' }),
-                    $first_name = $m('i', 'input', { required: true, name: 'first_name' }),
-                    $last_name = $m('i', 'input', { required: true, name: 'last_name' }),
-                    $email = $m('i', 'input', { required: true, name: 'email', type: 'email' }),
+                    $code = $m('i', 'input', { required: true, name: 'code', type: 'number', placeholder: 'Code' }),
                     $codeD = $m('dialog', 'form').append($m('c').append(
-                        $m('h').text('We just sent you a code via WhatsApp.'),
-                        $m('field').append($m('lbl').text('Code'), $code),
-                        $m('field').append($m('lbl').text('First Name'), $first_name),
-                        $m('field').append($m('lbl').text('Last Name'), $last_name),
-                        $m('field').append($m('lbl').text('Email'), $email),
-                        $m('ctrls').append($m('cont', 'button').text('Continue'))
+                        $m('h').setText('We just sent you a code via WhatsApp.'),
+                        $m('field').append($code),
+                        $m('ctrls').append($m('cont', 'button').setText('Continue'))
                     ));
                 showDialog($codeD, 'verify_code',
                     () => $code.focus(),
                     () => {
                         let data = {
                             phone,
-                            code: $code.value,
-                            first_name: $first_name.value,
-                            last_name: $last_name.value,
-                            email: $email.value,
+                            code: $code.value
                         };
                         return data;
                     },
                     (data, r) => {
                         chrome.runtime.sendMessage({ r: 'setToken', token: r.token, phone })
-                        $phone_t_t.text(phone);
+                        $phone_t_t.setText(phone);
                     }
                 );
             }

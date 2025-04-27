@@ -1,6 +1,6 @@
-html:not(.wizmage-show-html) { opacity: 0 !important; background: white !important; }
+:root:not(.wizmage-show-html) { opacity: 0 !important; background: white !important; }
 
-html.wizmage-running > body { background-image: none !important; }
+:root.wizmage-running > body { background-image: none !important; }
 
 .wizmage-hide { opacity: 0 !important; }
 

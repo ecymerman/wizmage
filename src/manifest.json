@@ -1,7 +1,7 @@
 {
   "name": "Wizmage AI",
   "short_name": "WizmageAI",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "manifest_version": 3,
   "description": "Select or type what you don't want to see — Wizmage AI will hide only those images for you.",
   "icons": {

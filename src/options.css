@@ -21,8 +21,10 @@ input[type="checkbox"] { vertical-align: middle; }
 .dialog { position: fixed; top: 0; right: 0; bottom: 0; left: 0; display: flex; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.8); }
     .dialog > .c { background: white; padding: 20px; }
         .dialog > .c > .h { font-size: 16px; margin-bottom: 10px; word-wrap: pre-line;}
-        .dialog > .c > .phone { margin-bottom: 10px; }
+        .dialog > .c > .phone {margin-bottom: 10px;position: relative;}
             .dialog > .c > .phone > .cc { width: 30px; padding-left: 10px; margin-right: 5px; }
-            .dialog > .c > .phone > .plus { position: relative; left: 10px; }
+            .dialog > .c > .phone > .plus {position: absolute;left: 4px;top: 4px;}
             .dialog > .c > .field { margin-bottom: 10px; }
+            .dialog > .c>.why {margin-top: 10px;}
+            .dialog > .c > .ctrls > .cont {padding:5px 10px}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance: none;}
