@@ -27,4 +27,9 @@ input[type="checkbox"] { vertical-align: middle; }
             .dialog > .c > .field { margin-bottom: 10px; }
             .dialog > .c>.why {margin-top: 10px;}
             .dialog > .c > .ctrls > .cont {padding:5px 10px}
+            .dialog > .c>.method {margin-bottom: 10px;}
+                .dialog > .c>.method >label {margin-right: 10px;display: inline-block;}            
+                    .dialog > .c>.method >label>input {vertical-align: -2px;margin: 0;}            
+            .dialog:not(.valid-cc) > .c>.method {display: none;}
+            .dialog:not(.cc-usa) > .c>.method>.sms {display: none;}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance: none;}

@@ -250,6 +250,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                     }
                     else if (m.attributeName == 'srcset' && el.tagName == 'SOURCE' && (<HTMLSourceElement>el).srcset && m.target.parentElement)
                         DoElement.call(m.target.parentElement!);
+                    else if (m.attributeName.indexOf('lazy') > -1)
+                        DoElements(el, true);
                 }
                 else if (m.addedNodes != null && m.addedNodes.length > 0) {
                     for (let j = 0; j < m.addedNodes.length; j++) {
@@ -370,7 +372,8 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             let elWidth = el.width, elHeight = el.height;
             if ((el.src == blankImg && !el.srcset) || (el.wzmAllowSrc && el.src == el.wzmAllowSrc.src && el.srcset == el.wzmAllowSrc.srcset)) { //was successfully replaced
                 DoHidden(el, false);
-            } else if ((elWidth == 0 || elWidth > _settings.maxSafe) && (elHeight == 0 || elHeight > _settings.maxSafe) && !(el.src && el.src.endsWith('.svg'))) { //needs to be hidden - we need to catch 0 too, as sometimes images start off as zero
+            } else if ((elWidth == 0 || elWidth > _settings.maxSafe) && (elHeight == 0 || elHeight > _settings.maxSafe) //needs to be hidden - we need to catch 0 too, as sometimes images start off as zero
+                && !(el.src && (el.src.endsWith('.svg') || el.src.startsWith('data:image/svg+xml')))) {
                 DoMouseEventListeners(el, true);
                 if (!el.wzmHasTitleAndSizeSetup) {
                     el.style.width = elWidth + 'px';

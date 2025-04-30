@@ -113,13 +113,21 @@
     $phone_t_set.onclick = () => {
         let $cc = $m('cc', 'input', { type: 'number', required: true, maxlength: 3 }),
             $num = $m('num', 'input', { type: 'number', required: true }),
+            $wa = $m('method-radio', 'input', { type: 'radio', name: 'method', checked: true }), $waW = $m('method-lbl wa', 'label').append($wa, ' WhatsApp'),
+            $sms = $m('method-radio', 'input', { type: 'radio', name: 'method' }), $smsW = $m('method-lbl sms', 'label').append($sms, ' SMS'),
             $phoneD = $m('dialog', 'form').append($m('c').append(
-                $m('h').setText('Enter your phone number.\nWe will send you a verification code via WhatsApp.'),
+                $m('h').setText('Enter your phone number.\nWe will send you a verification code.'),
                 $m('phone').append($m('plus', 'span').setText('+'), $cc, $num),
+                $m('method').append($waW, $smsW),
                 $m('ctrls').append($m('cont', 'button').setText('Continue')),
                 $m('why').append($m('', 'a', { href: 'https://wizmage.com/ai#privacy', target: '_blank' }).setText('Why & Privacy'))
             ));
         $cc.oninput = () => {
+            let cc = $cc.value, validCC = !!cc && countryCodes.indexOf(+cc) > -1;
+            $phoneD.classList.toggle('valid-cc', validCC);
+            $phoneD.classList.toggle('cc-usa', cc == '1');
+            if (cc != '1')
+                $wa.checked = true;
             if ($cc.value && countryCodes.indexOf(+$cc.value) > -1)
                 $num.focus();
         };
@@ -134,13 +142,13 @@
                     return;
                 }
                 let phone = '+' + cc + num;
-                return { phone };
+                return { phone, sms: $sms.checked };
             },
             (data, r) => {
                 let phone = data.phone,
                     $code = $m('i', 'input', { required: true, name: 'code', type: 'number', placeholder: 'Code' }),
                     $codeD = $m('dialog', 'form').append($m('c').append(
-                        $m('h').setText('We just sent you a code via WhatsApp.'),
+                        $m('h').setText('We just sent your code.'),
                         $m('field').append($code),
                         $m('ctrls').append($m('cont', 'button').setText('Continue'))
                     ));
