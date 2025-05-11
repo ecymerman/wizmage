@@ -112,7 +112,7 @@
         countryCodes = [54, 297, 61, 43, 375, 32, 1, 55, 359, 56, 86, 57, 506, 357, 420, 45, 358, 33, 49, 44, 30, 502, 504, 852, 36, 91, 62, 353, 972, 350, 39, 81, 254, 965, 961, 370, 52, 212, 64, 47, 92, 507, 51, 48, 351, 40, 7, 65, 386, 27, 850, 34, 46, 41, 66, 31, 90, 598, 58, 82, 591, 971, 886, 380, 60];
     $phone_t_set.onclick = () => {
         let $cc = $m('cc', 'input', { type: 'number', required: true, maxlength: 3 }),
-            $num = $m('num', 'input', { type: 'number', required: true }),
+            $num = $m('num', 'input', { type: 'text', required: true }),
             $wa = $m('method-radio', 'input', { type: 'radio', name: 'method', checked: true }), $waW = $m('method-lbl wa', 'label').append($wa, ' WhatsApp'),
             $sms = $m('method-radio', 'input', { type: 'radio', name: 'method' }), $smsW = $m('method-lbl sms', 'label').append($sms, ' SMS'),
             $phoneD = $m('dialog', 'form').append($m('c').append(
@@ -130,6 +130,10 @@
                 $wa.checked = true;
             if ($cc.value && countryCodes.indexOf(+$cc.value) > -1)
                 $num.focus();
+        };
+        $num.oninput = () => {
+            if (/[^0-9]/.test($num.value))
+                $num.value = $num.value.replace(/[^0-9]/g, '');
         };
         showDialog($phoneD, 'send_code',
             () => $cc.focus(),
@@ -173,7 +177,7 @@
     //unwanted
     let $unwanted_w = document.getElementById('unwanted-w'), $unwanted_opt = document.getElementById('unwanted-opt'),
         $unwanted_cust = document.getElementById('unwanted-cust'),
-        unwanted_ideas = ['nudity', 'delicious food', 'a woman', 'a man', 'advertizing', 'an eagle sucking a lollipop'];
+        unwanted_ideas = ['nudity', 'delicious food', 'a woman', 'a man', 'advertizing'];
     for (let idea of unwanted_ideas) {
         let opt = document.createElement('option');
         opt.innerText = idea;
