@@ -1,35 +1,66 @@
-body { background: #004; font-family: arial; }
-#cont { width: 525px; background: #b1f0b1; margin: auto; margin-top: 50px; padding: 20px; border-radius: 20px; }
-    #cont h2 { margin-bottom: 5px; font-size: 14px; }
-#list { border-radius: 10px; width: 500px; border: 2px solid #aa1212; padding: 10px; margin: 10px 0px; }
-h3 { margin-bottom: 10px; }
-    h3 > * { vertical-align: middle; margin: 0; }
-    h3 > label { margin-right: 10px; }
-.delete { cursor: pointer; color: red; border: 2px solid #bd17f1; padding: 0px 4px; border-radius: 12px; }
-.item:first-child { margin-top: 0; }
-.item { margin-top: 10px; }
-#addName { width: 400px; border: 1px solid green; border-radius: 5px; padding: 0px 5px; }
-.info-icon { background: black; color: white; border-radius: 10px; padding: 0 4px; cursor: default; }
+body { background: #FAFAFA; padding: 0 20px; font-size: 14px; color: #414651; }
+body, button, input:not([type="checkbox"]) { font-family: "Inter", sans-serif; }
+    select, input:not([type="checkbox"]):not([type="radio"]), h1 { color: #181D27; }
+    select, input:not([type="checkbox"]):not([type="radio"]) { font-size: 16px; border: 1px solid #D5D7DA; border-radius: 8px; box-shadow: 0 3px 3px #eee; height: 44px; padding: 0 10px; box-sizing: border-box; }
+b { font-weight: 600; }
+x-info { display: block; }
+f-row { display: flex; align-items: center; }
+.info-icon { color: #A4A7AE; border-radius: 99px; cursor: default; margin-left: 10px; display: inline-flex; width: 15px; height: 15px; justify-content: center; align-items: center; flex: none; box-sizing: border-box; border: solid 1px #A4A7AE; font-size: 12px; }
 input[type="checkbox"] { vertical-align: middle; }
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
-#phone-w { margin-bottom: 20px; }
-    #phone-w a { color: blue; text-decoration: underline; cursor: pointer; }
+#cont { max-width: 1000px; margin: 0 auto; margin-top: 50px; border-radius: 20px; }
+    #cont h2 { margin-bottom: 5px; font-size: 14px; }
+    #cont > h1 { font-size: 30px; font-weight: 600; }
 
-#unwanted-w { margin-bottom: 20px; }
-    #unwanted-w:not(.cust) > #unwanted-cust { display: none; }
+f-section { display: flex; padding: 20px 0; }
+    f-section > x-t { width: 312px; flex: none; }
+        f-section > x-t > x-info { color: #535862; }
+    f-section > x-c { flex: 1; background: white; box-shadow: 0px 1px 3px rgba(10, 13, 18, 0.1), 0px 1px 2px rgba(10, 13, 18, 0.06); border-radius: 12px; padding: 24px; }
+        f-section > x-c > x-lbl { display: block; font-weight: 500; margin-bottom: 10px; }
+        f-section > x-c > x-info { color: #535862; margin-top: 10px; }
+    f-section:not(:last-child) { border-bottom: solid 1px #E9EAEB; }
+
+#phone-t-t-w { margin-top: 15px; }
+#phone-t-t { border: 4px solid #FFEBEB; border-radius: 8px; font-size: 16px; padding: 5px 15px; }
+#phone-t-set-w { margin-top: 15px; }
+#phone-t-set { background: #FDF2FA; color: #C11574; font-weight: 600; font-size: 14px; border: solid 1px #C11574; border-radius: 8px; display: flex; justify-content: center; align-items: center; width: 150px; height: 36px; cursor: pointer }
+#phone-w[data-has-num='Y'] #phone-t-t { border-color: #c3f9d9 }
+#phone-w[data-has-num='Y'] #phone-t-set { background: #ECFDF3; color: #027A48; border-color: #027A48; }
+#unwanted-w:not(.cust) > #unwanted-cust { display: none; }
+#unwanted-opt { width: 300px; margin-right: 20px; }
+#unwanted-cust { flex: 1; }
+#no-eye-w { margin: 20px 0 30px; }
+#close-on-click-w { margin-top: 20px; }
+#max-safe { text-align: center; width: 100px; }
+#w-b-list-w { margin-bottom: 20px; }
+#w-b-list { width: 300px; }
+#addName { width: 400px; }
+#addBut { background: white; cursor: pointer; }
+
+#excluded-lbl { margin-top: 25px; }
+#list { border-radius: 10px; width: 500px; border: 1px solid #D5D7DA; padding: 15px; margin: 10px 0px 20px; max-height: 300px; overflow: auto; }
+    #list > .item { margin-bottom: 10px; display: flex; align-items: center; }
+        #list > .item > .url { background: #ECFDF3; color: #027A48; border-radius: 99px; padding: 2px 10px; }
+        #list > .item > .delete { cursor: pointer; color: #A4A7AE; border: 1px solid #A4A7AE; border-radius: 12px; display: inline-flex; width: 12px; height: 12px; justify-content: center; align-items: center; font-size: 10px; margin-left: 5px; }
+#exclusions[data-type='B'] > #list > .item > .url { color: #C11574; background: #FDF2FA; }
 
 .dialog { position: fixed; top: 0; right: 0; bottom: 0; left: 0; display: flex; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.8); }
-    .dialog > .c { background: white; padding: 20px; }
-        .dialog > .c > .h { font-size: 16px; margin-bottom: 10px; word-wrap: pre-line;}
-        .dialog > .c > .phone {margin-bottom: 10px;position: relative;}
-            .dialog > .c > .phone > .cc { width: 30px; padding-left: 10px; margin-right: 5px; }
-            .dialog > .c > .phone > .plus {position: absolute;left: 4px;top: 4px;}
-            .dialog > .c > .field { margin-bottom: 10px; }
-            .dialog > .c>.why {margin-top: 10px;}
-            .dialog > .c > .ctrls > .cont {padding:5px 10px}
-            .dialog > .c>.method {margin-bottom: 10px;}
-                .dialog > .c>.method >label {margin-right: 10px;display: inline-block;}            
-                    .dialog > .c>.method >label>input {vertical-align: -2px;margin: 0;}            
-            .dialog:not(.valid-cc) > .c>.method {display: none;}
-            .dialog:not(.cc-usa) > .c>.method>.sms {display: none;}
-input[type=number]::-webkit-inner-spin-button{-webkit-appearance: none;}
+    .dialog > .c { background: white; padding: 24px 24px 60px; border-radius: 12px; width: 400px; box-sizing: border-box; }
+        .dialog > .c > .h { font-size: 18px; margin-bottom: 10px; color: #181D27; font-weight: 600; margin-top: 12px; }
+        .dialog > .c > .phone { margin-bottom: 10px; position: relative; margin-top: 15px; }
+            .dialog > .c > .phone > .cc { width: 60px; padding-left: 15px; margin-right: 5px; }
+            .dialog > .c > .phone > .plus { position: absolute; left: 4px; top: 11px; font-size: 16px; }
+        .dialog > .c > .field { margin-bottom: 10px; }
+        .dialog > .c > .why { margin-top: 10px; }
+        .dialog > .c > .t > a { color: inherit; }
+        .dialog > .c > .ctrls { display: flex; justify-content: space-between; margin-top: 25px; }
+            .dialog > .c > .ctrls > button { border: 1px solid #D5D7DA; background: none; font-size: 16px; font-weight: 600; height: 44px; width: 170px; border-radius: 8px; cursor: pointer;}
+            .dialog > .c > .ctrls > .cont { color: white; background: #4300DA; }
+        .dialog > .c > .method { margin-bottom: 10px; display: flex; flex-direction: column; }
+            .dialog > .c > .method > label { margin-right: 10px; font-weight: 500; margin: 8px 0px; }
+                .dialog > .c > .method > label > input { vertical-align: -2px; margin: 0; }
+        .dialog > .c > .digits { display: flex; margin-top: 15px; }
+            .dialog > .c > .digits > .digit { width: 35px; margin-right: 8px; text-align: center; height: 38px; padding: 0; color: #004781; font-weight: 600; font-size: 18px; }
+    .dialog:not(.valid-cc) > .c > .method { display: none; }
+    .dialog:not(.cc-usa) > .c > .method > .sms { display: none; }

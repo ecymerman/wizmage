@@ -26,10 +26,11 @@ interface HTMLElement {
     wzmCheckTimeout?: number,
     wzmBad?: boolean,
     wzmUnchecked?: boolean,
-    wzmAllowSrc?: { src?: string, srcset?: string }
+    wzmAllowSrc?: { src?: string, srcset?: string },
+    wzmSetSize?: boolean
 }
 interface HTMLImageElement {
-    wzmHasTitleAndSizeSetup?: boolean,
+    wzmHasTitleSetup?: boolean,
     owner?: HTMLElement,
     oldsrc?: string,
     oldsrcset?: string
@@ -178,6 +179,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 ShowEl.call(mouseOverEl);
                 eye.style.display = 'none';
             } else if (e.keyCode == 90 && !mouseOverEl.wzmWizmaged) { //ALT-z
+                mouseOverEl.wzmAllowSrc = null;
                 DoElement.call(mouseOverEl);
                 eye.style.display = 'none';
             }
@@ -375,9 +377,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
             } else if ((elWidth == 0 || elWidth > _settings.maxSafe) && (elHeight == 0 || elHeight > _settings.maxSafe) //needs to be hidden - we need to catch 0 too, as sometimes images start off as zero
                 && !(el.src && (el.src.endsWith('.svg') || el.src.startsWith('data:image/svg+xml')))) {
                 DoMouseEventListeners(el, true);
-                if (!el.wzmHasTitleAndSizeSetup) {
-                    el.style.width = elWidth + 'px';
-                    el.style.height = elHeight + 'px';
+                if (!el.wzmHasTitleSetup) {
                     if (!el.title)
                         if (el.alt)
                             el.title = el.alt;
@@ -385,7 +385,7 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                             el.src.match(/([-\w]+)(\.[\w]+)?$/i);
                             el.title = RegExp.$1;
                         }
-                    el.wzmHasTitleAndSizeSetup = true;
+                    el.wzmHasTitleSetup = true;
                 }
                 imgUrl = el.src;
                 DoHidden(el, true);
@@ -497,6 +497,11 @@ function DoWin(win: Window, winContentLoaded: boolean) {
     //for IMG,SOURCE
     function DoImgSrc(el: HTMLImageElement, toggle: boolean) {
         if (toggle) {
+            if (!el.style.width && !el.style.height) {
+                el.style.width = el.width + 'px';
+                el.style.height = el.height + 'px';
+                el.wzmSetSize = true;
+            }
             if (el.tagName != 'SOURCE') {
                 el.oldsrc = el.src;
                 el.src = '';
@@ -509,6 +514,11 @@ function DoWin(win: Window, winContentLoaded: boolean) {
                 el.src = el.oldsrc || '';
             if (el.oldsrcset != undefined)
                 el.srcset = el.oldsrcset || '';
+            if (el.wzmSetSize) {
+                el.style.width = el.style.height = null;
+                el.wzmSetSize = false;
+            }
+
         }
     }
     function DoHidden(el: HTMLElement, toggle: boolean) {

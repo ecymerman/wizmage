@@ -2,63 +2,87 @@
 <html>
 
 <head>
-    <title>Wizmage Options</title>
+    <title>Wizmage Settings</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900">
     <link rel="stylesheet" href="options.css">
 </head>
 
 <body>
     <div id='cont'>
-        <h3>Settings</h3>
-        <div id="phone-w">
-            <h2>Phone Number</h2>
-            <div id="phone-t">
-                <span id="phone-t-t"></span>
-                <a id="phone-t-set">set</a>
-            </div>
-        </div>
-        <div id="unwanted-w">
-            <h2>Block any image that contains:</h2>
-            <select id="unwanted-opt">
-                <option value=""></option>
-                <option value="cust">(custom)</option>
-            </select>
-            <input id="unwanted-cust" maxlength="40" />
-        </div>
-        <div>
-            <input type="checkbox" id="noEye" />
-            <label for="noEye">Don't show the Eye in hidden images</label>
-            <span id="noEyeInfo" class="info-icon"
-                title="By default, an eye is shown when hovering the mouse over a hidden image. Clicking on it will show that image.">?</span>
-        </div>
-        <div>
-            <label>Maximum Safe pixels</label>
-            <input type="text" id="max-safe" />
-            <span class="info-icon"
-                title="The maximum size of images that you always want shown. Must be 1-1000.">?</span>
-        </div>
-        <div>
-            <input type="checkbox" id="close-on-click" />
-            <label for="close-on-click">Menu - close on click</label>
-            <span class="info-icon" title="Closes the popup menu, whenever an option is clicked.">?</span>
-        </div>
-        <h3>
-            <input type="radio" id="white-list" name="list-type" />
-            <label for="white-list">White List</label>
-            <input type="radio" id="black-list" name="list-type" />
-            <label for="black-list">Black List</label>
-            <span class="info-icon"
-                title="With a White List, Wizmage runs on all sites, besides for those in the list below. With a Black List, Wizmage only runs on the sites in the list below.">?</span>
-        </h3>
-        <form id="form">
-            <input type='text' id='addName'>
-            <input type='submit' value='Add Exception' id='addBut'>
-        </form>
-        <div><i>a URL containing any of the following lines will be matched</i></div>
-        <div id='list'></div>
-        <div>
-            <input type="checkbox" id="free-text" />
-            <label for="free-text">Free Text</label>
-        </div>
+        <h1>Wizmage Settings</h1>
+        <f-section>
+            <x-t>
+                <b>Personal Info</b>
+                <x-info>Confirm your phone number</x-info>
+            </x-t>
+            <x-c id="phone-w">
+                <x-lbl>Phone number</x-lbl>
+                <f-row id="phone-t-t-w"><span id="phone-t-t"></span></f-row>
+                <f-row id="phone-t-set-w"><button type="button" id="phone-t-set"></button></f-row>
+            </x-c>
+        </f-section>
+        <f-section>
+            <x-t>
+                <b>Filter Setup</b>
+                <x-info>Configure the settings for your filter</x-info>
+            </x-t>
+            <x-c>
+                <x-lbl>Block any images that contains:</x-lbl>
+                <f-row id="unwanted-w">
+                    <select id="unwanted-opt">
+                        <option value=""></option>
+                        <option value="cust">(custom)</option>
+                    </select>
+                    <input id="unwanted-cust" maxlength="40" />
+                </f-row>
+                <f-row id="no-eye-w">
+                    <input type="checkbox" id="noEye" />
+                    <label for="noEye">Don't show the Eye in hidden images</label>
+                    <span id="noEyeInfo" class="info-icon"
+                        title="By default, an eye is shown when hovering the mouse over a hidden image. Clicking on it will show that image.">?</span>
+                </f-row>
+                <x-lbl>
+                    Maximum Safe pixels
+                    <span class="info-icon"
+                        title="The maximum size of images that you always want shown. Must be 1-1000.">?</span>
+                </x-lbl>
+                <f-row id="max-safe-w">
+                    <input type="text" id="max-safe" />
+                </f-row>
+                <f-row id="close-on-click-w">
+                    <input type="checkbox" id="close-on-click" />
+                    <label for="close-on-click">Close menu on click</label>
+                    <span class="info-icon" title="Closes the popup menu, whenever an option is clicked.">?</span>
+                </f-row>
+            </x-c>
+        </f-section>
+        <f-section>
+            <x-t>
+                <b>Whitelist / Blacklist</b>
+                <x-info>Whitelist or Blacklist select sites</x-info>
+            </x-t>
+            <x-c id="exclusions">
+                <f-row id="w-b-list-w">
+                    <select id="w-b-list">
+                        <option value="W">Whitelist Sites</option>
+                        <option value="B">Blacklist Sites</option>
+                    </select>
+                    <span class="info-icon"
+                        title="With a Whitelist, Wizmage runs on all sites, besides for those in the list below. With a Blacklist, Wizmage only runs on the sites in the list below.">?</span>
+                </f-row>
+                <form id="form">
+                    <input type='text' id='addName'>
+                    <input type='submit' value='Add Exclusion' id='addBut'>
+                </form>
+                <x-info>a URL containing this text will be matched</x-info>
+                <x-lbl id="excluded-lbl">Exclusions</x-lbl>
+                <div id='list'></div>
+                <f-row id="free-text-w">
+                    <input type="checkbox" id="free-text" />
+                    <label for="free-text">Free Text</label>
+                </f-row>
+            </x-c>
+        </f-section>
     </div>
     <script src='options.js'></script>
 </body>
