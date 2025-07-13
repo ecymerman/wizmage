@@ -116,13 +116,14 @@
             $num = m$('num', 'input', { type: 'text', required: true }),
             $wa = m$('method-radio', 'input', { type: 'radio', name: 'method', checked: true }), $waW = m$('method-lbl wa', 'label').append($wa, ' WhatsApp'),
             $sms = m$('method-radio', 'input', { type: 'radio', name: 'method' }), $smsW = m$('method-lbl sms', 'label').append($sms, ' SMS'),
+            $noWhatsApp = m$('no-wa').setText("If you don't have WhatsApp, email your phone number to ai@wizmage.com and we will try to email you your code."),
             $cancel = m$('cancel', 'button', { type: 'button' }).setText('Cancel'),
             $phoneD = m$('dialog', 'form').append(m$('c').append(
                 m$('icon-w').append(m$('', 'img', { src: 'green-tick.png' })),
                 m$('h').setText('Verify your number'),
                 m$('t').setText('For security reasons we need to verify your phone number. ').append(m$('', 'a', { href: 'https://wizmage.com/ai#privacy', target: '_blank' }).setText('Why')),
                 m$('phone').append(m$('plus', 'span').setText('+'), $cc, $num),
-                m$('method').append($waW, $smsW),
+                m$('method').append($waW, $smsW, $noWhatsApp),
                 m$('ctrls').append($cancel, m$('cont', 'button').setText('Continue')),
             ));
         $cc.oninput = () => {
@@ -133,6 +134,8 @@
                 $wa.checked = true;
             if ($cc.value && countryCodes.indexOf(+$cc.value) > -1)
                 $num.focus();
+            //I know some communities in these countries, and feel I can distinguish spam from real, manually.
+            $noWhatsApp.style.display = cc == '44' || cc == '972' ? 'block' : 'none';
         };
         $num.oninput = () => {
             if (/[^0-9]/.test($num.value))

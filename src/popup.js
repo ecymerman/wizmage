@@ -9,11 +9,11 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             document.getElementById('err-msg').innerText = msg;
         }
         if (!settings.token) {
-            showErr('Go to Options, and set your phone number.')
+            showErr('Go to All Settings, and set your phone number.')
             return;
         }
         if (!settings.unwanted) {
-            showErr('Go to Options, and select what you wish to block.')
+            showErr('Go to All Settings, and select what you wish to block.')
             return;
         }
         document.getElementById('pauseChk').checked = settings.paused;
