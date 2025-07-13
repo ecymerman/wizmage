@@ -20,7 +20,6 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         document.getElementById('pauseTab').checked = settings.pausedForTab;
         document.getElementById('excludeDomain').checked = settings.excluded;
         document.getElementById('excludeForTab').checked = settings.excludedForTab;
-        document.getElementById('exclude-tab-wrap').style.display = 'block';
         document.querySelectorAll('i-add-exclude').forEach(x => x.innerText = settings.blackList ? 'Add' : 'Exclude');
         closeOnClick = settings.closeOnClick;
     });
@@ -53,10 +52,6 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.runtime.sendMessage({ r: 'pauseForTab', tabId: activeTab.id, toggle: this.checked });
         showImages();
         if (closeOnClick) close();
-    };
-    document.getElementById('still-seeing-images').onclick = function () {
-        var advice = document.getElementById('advice');
-        advice.style.display = advice.style.display == 'block' ? 'none' : 'block';
     };
 });
 document.getElementById('close').onclick = function () { close(); };
