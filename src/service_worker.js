@@ -176,6 +176,12 @@ chrome.runtime.onMessage.addListener(
                         ws.openPromise = new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
                         ws.onmessage = x => {
                             let d = JSON.parse(x.data);
+                            if (d.err == 'bad-user') {
+                                settings.token = undefined;
+                                settings.phone = undefined;
+                                chrome.storage.local.set({ settings });
+                                return;
+                            }
                             if (d.img_id)
                                 sendResult(ws, d.img_id, d.result, true);
                             ws.lastMsg = Date.now()
