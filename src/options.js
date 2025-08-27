@@ -129,6 +129,7 @@
             ["Australia", "61"],
             ["Belgium", "32"],
             ["Canada", "1"],
+            ["France", "33"],
             ["Israel", "972"],
             ["Pakistan", "92"],
             ["Poland", "48"],
