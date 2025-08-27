@@ -109,30 +109,41 @@
     CreateList();
 
     //phone
-    let $phone_t_set = document.getElementById('phone-t-set'), $phone_t_t = document.getElementById('phone-t-t'),
-        countryCodes = [54, 297, 61, 43, 375, 32, 1, 55, 359, 56, 86, 57, 506, 357, 420, 45, 358, 33, 49, 44, 30, 502, 504, 852, 36, 91, 62, 353, 972, 350, 39, 81, 254, 965, 961, 370, 52, 212, 64, 47, 92, 507, 51, 48, 351, 40, 7, 65, 386, 27, 850, 34, 46, 41, 66, 31, 90, 598, 58, 82, 591, 971, 886, 380, 60];
+    let $phone_t_set = document.getElementById('phone-t-set'), $phone_t_t = document.getElementById('phone-t-t');
     $phone_t_set.onclick = () => {
-        let $cc = m$('cc', 'input', { type: 'number', required: true, maxlength: 3 }),
-            $num = m$('num', 'input', { type: 'text', required: true }),
+        let $cc = m$('cc', 'select', { required: true }).append(m$('', 'option').setText('Country')),
+            $num = m$('num', 'input', { type: 'text', required: true, placeholder: 'Phone number' }),
             $wa = m$('method-radio', 'input', { type: 'radio', name: 'method', checked: true }), $waW = m$('method-lbl wa', 'label').append($wa, ' WhatsApp'),
             $sms = m$('method-radio', 'input', { type: 'radio', name: 'method' }), $smsW = m$('method-lbl sms', 'label').append($sms, ' SMS'),
             $noWhatsApp = m$('no-wa').setText("If you don't have WhatsApp, email your phone number to ai@wizmage.com and we will try to email you your code."),
             $cancel = m$('cancel', 'button', { type: 'button' }).setText('Cancel'),
             $phoneD = m$('dialog', 'form').append(m$('c').append(
                 m$('icon-w').append(m$('', 'img', { src: 'green-tick.png' })),
-                m$('h').setText('Verify your number'),
+                m$('h').setText('Enter your phone number'),
                 m$('t').setText('For security reasons we need to verify your phone number. ').append(m$('', 'a', { href: 'https://wizmage.com/ai#privacy', target: '_blank' }).setText('Why')),
-                m$('phone').append(m$('plus', 'span').setText('+'), $cc, $num),
+                m$('phone').append($cc, $num),
                 m$('method').append($waW, $smsW, $noWhatsApp),
                 m$('ctrls').append($cancel, m$('cont', 'button').setText('Continue')),
             ));
-        $cc.oninput = () => {
-            let cc = $cc.value, validCC = !!cc && countryCodes.indexOf(+cc) > -1;
+        for (let c of [
+            ["Australia", "61"],
+            ["Belgium", "32"],
+            ["Canada", "1"],
+            ["Israel", "972"],
+            ["Pakistan", "92"],
+            ["Poland", "48"],
+            ["UK", "44"],
+            ["USA", "1"]
+        ]) {
+            $cc.append(m$('', 'option', { value: c[1] }).setText(c[0]));
+        }
+        $cc.onchange = () => {
+            let cc = $cc.value, validCC = !!cc;
             $phoneD.classList.toggle('valid-cc', validCC);
             $phoneD.classList.toggle('cc-usa', cc == '1');
             if (cc != '1')
                 $wa.checked = true;
-            if ($cc.value && countryCodes.indexOf(+$cc.value) > -1)
+            if (validCC)
                 $num.focus();
             //I know some communities in these countries, and feel I can distinguish spam from real, manually.
             $noWhatsApp.style.display = cc == '44' || cc == '972' ? 'block' : 'none';
@@ -141,12 +152,12 @@
             if (/[^0-9]/.test($num.value))
                 $num.value = $num.value.replace(/[^0-9]/g, '');
         };
-        $cancel.onclick=() => $phoneD.remove();
+        $cancel.onclick = () => $phoneD.remove();
         showDialog($phoneD, 'send_code',
             () => $cc.focus(),
             () => {
                 let cc = $cc.value, num = $num.value;
-                if (['1', '45', '372', '995', '374'].indexOf(cc) == -1 && num[0] == '0')
+                if ((cc == '1' && num[0] == '1') || (cc != '1' && num[0] == '0'))
                     num = num.substr(1)
                 if ((cc == '1' && num.length != 10) || num.length < 4 || num.length > 15) {
                     alert('Phone number is not the correct length.');
@@ -189,7 +200,7 @@
                         }
                     };
                 }
-                $cancel.onclick=() => $codeD.remove();
+                $cancel.onclick = () => $codeD.remove();
                 showDialog($codeD, 'verify_code',
                     () => digits[0].focus(),
                     () => {
